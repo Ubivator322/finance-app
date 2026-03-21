@@ -1,6 +1,6 @@
 // ====================== AUTH.JS — НОВАЯ ВЕРСИЯ ДЛЯ БЭКЕНДА ======================
 // Автоматически определяет окружение
-const API_URL = window.location.hostname === 'localhost' 
+const API_BASE = window.location.hostname === 'localhost' 
     ? 'http://localhost:10000'  // или ваш локальный порт
     : 'https://finance-app-2-0.onrender.com';
 
@@ -12,6 +12,7 @@ async function apiRequest(endpoint, method = 'POST', body = null) {
   });
   return res.json();
 }
+
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toastContainer');
