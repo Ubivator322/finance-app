@@ -5,18 +5,25 @@ const API_BASE = window.location.hostname === 'localhost'
     : 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'POST', body = null) {
-  const res = await fetch(API_BASE + endpoint, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: body ? JSON.stringify(body) : null
-  });
-  
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(error);
+  try {
+    const res = await fetch(API_BASE + endpoint, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : null
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      // Возвращаем объект с ошибкой, а не выбрасываем исключение
+      return { success: false, message: data.message || 'Ошибка сервера' };
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Network error:', err);
+    return { success: false, message: 'Ошибка сети. Проверьте подключение.' };
   }
-  
-  return res.json();
 }
 
 function showToast(msg, type = 'success') {
