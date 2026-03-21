@@ -1,3 +1,14 @@
+const db = require('../config/db');
+
+const getTransactions = (req, res) => {
+  const transactions = db.prepare(`
+    SELECT * FROM transactions 
+    WHERE user_id = ? 
+    ORDER BY date DESC, created_at DESC
+  `).all(req.user.id);
+  res.json({ success: true, transactions });
+};
+
 const createTransaction = (req, res) => {
   const { 
     date, 
@@ -14,7 +25,7 @@ const createTransaction = (req, res) => {
     return res.status(400).json({ message: 'Дата, категория и сумма обязательны' });
   }
 
-  // Проверка существования целей (опционально, но желательно)
+  // Проверка целей
   if (toGoalId) {
     const goal = db.prepare('SELECT * FROM goals WHERE id = ? AND user_id = ?').get(toGoalId, req.user.id);
     if (!goal) return res.status(400).json({ message: 'Цель не найдена' });
@@ -44,7 +55,7 @@ const createTransaction = (req, res) => {
     isGoalReturn ? 1 : 0
   );
 
-  // === ОБНОВЛЕНИЕ ЦЕЛЕЙ ===
+  // Обновление баланса целей
   if (toGoalId) {
     db.prepare('UPDATE goals SET current = current + ? WHERE id = ? AND user_id = ?')
       .run(Math.abs(amount), toGoalId, req.user.id);
@@ -56,3 +67,20 @@ const createTransaction = (req, res) => {
 
   res.json({ success: true, transactionId: info.lastInsertRowid });
 };
+
+const deleteTransaction = (req, res) => {
+  const { id } = req.params;
+  const tx = db.prepare('SELECT * FROM transactions WHERE id = ? AND user_id = ?').get(id, req.user.id);
+  if (tx) {
+    if (tx.toGoalId) {
+      db.prepare('UPDATE goals SET current = current - ? WHERE id = ?').run(Math.abs(tx.amount), tx.toGoalId);
+    }
+    if (tx.fromGoalId) {
+      db.prepare('UPDATE goals SET current = current + ? WHERE id = ?').run(Math.abs(tx.amount), tx.fromGoalId);
+    }
+  }
+  db.prepare('DELETE FROM transactions WHERE id = ? AND user_id = ?').run(id, req.user.id);
+  res.json({ success: true });
+};
+
+module.exports = { getTransactions, createTransaction, deleteTransaction };
