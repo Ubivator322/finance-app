@@ -2,7 +2,8 @@ const Database = require('better-sqlite3');
 const path = require('path');
 
 const dbPath = path.join(__dirname, '../data/finance.db');
-const db = new Database(dbPath);
+const Database = require('better-sqlite3');
+const db = new Database('/tmp/finance-app.db');
 
 // ====================== СОЗДАНИЕ ТАБЛИЦ ======================
 db.exec(`
