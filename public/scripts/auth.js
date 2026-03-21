@@ -1,5 +1,8 @@
 // ====================== AUTH.JS — НОВАЯ ВЕРСИЯ ДЛЯ БЭКЕНДА ======================
-const API_BASE = 'http://localhost:3000/api';
+// Автоматически определяет окружение
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:10000'  // или ваш локальный порт
+    : 'https://finance-app-2-0.onrender.com';
 
 async function apiRequest(endpoint, method = 'POST', body = null) {
   const res = await fetch(API_BASE + endpoint, {
