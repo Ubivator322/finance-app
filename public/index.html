@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Финансы — Вход</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/tailwind-script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .dark .glass {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-violet-600 to-indigo-600 min-h-screen flex items-center justify-center p-6">
+  <div class="max-w-md w-full">
+    <div class="glass rounded-3xl shadow-2xl p-10">
+      <div class="flex justify-center mb-8">
+        <div class="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-6xl">💰</div>
+      </div>
+      <h1 class="text-white text-4xl font-bold text-center mb-2">Личные финансы</h1>
+      <p class="text-white/80 text-center mb-10">Учёт • Бюджет • Цели</p>
+
+      <!-- Табы -->
+      <div class="flex bg-white/10 rounded-3xl p-1.5 mb-10">
+        <button id="tabLogin"
+          class="flex-1 py-4 text-lg font-semibold rounded-3xl tab-btn active text-white">Вход</button>
+        <button id="tabRegister"
+          class="flex-1 py-4 text-lg font-semibold rounded-3xl tab-btn text-white">Регистрация</button>
+      </div>
+
+      <!-- Форма входа -->
+      <form id="loginForm" class="space-y-6">
+        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="off"
+          class="w-full bg-white/10 border border-white/30 text-white placeholder-white/70 rounded-3xl px-6 py-4">
+
+        <div class="relative">
+          <input type="password" id="loginPassword" placeholder="Пароль" required autocomplete="new-password"
+            class="w-full bg-white/10 border border-white/30 text-white placeholder-white/70 rounded-3xl px-6 py-4 pr-12">
+          <button type="button" onclick="togglePassword('loginPassword')"
+            class="absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            <i id="loginEye" class="fas fa-eye"></i>
+          </button>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-white text-violet-700 font-semibold py-4 rounded-3xl text-xl">Войти</button>
+      </form>
+
+      <!-- Форма регистрации -->
+      <form id="registerForm" class="space-y-6 hidden">
+        <input type="text" id="regName" placeholder="Имя" required autocomplete="off"
+          class="w-full bg-white/10 border border-white/30 text-white placeholder-white/70 rounded-3xl px-6 py-4">
+
+        <input type="email" id="regEmail" placeholder="Email" required autocomplete="off"
+          class="w-full bg-white/10 border border-white/30 text-white placeholder-white/70 rounded-3xl px-6 py-4">
+
+        <div class="relative">
+          <input type="password" id="regPassword" placeholder="Пароль (минимум 6)" required autocomplete="new-password"
+            class="w-full bg-white/10 border border-white/30 text-white placeholder-white/70 rounded-3xl px-6 py-4 pr-12">
+          <button type="button" onclick="togglePassword('regPassword')"
+            class="absolute right-5 top-1/2 -translate-y-1/2 text-white/70">
+            <i id="regEye" class="fas fa-eye"></i>
+          </button>
+        </div>
+
+        <button type="submit" class="w-full bg-white text-violet-700 font-semibold py-4 rounded-3xl text-xl">Создать
+          аккаунт</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fixed bottom-8 right-8 flex flex-col gap-3 z-50"></div>
+  <script src="scripts/auth.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+# Зависимости
+node_modules/
+backend/node_modules/
+
+# База данных и окружение
+backend/data/finance.db
+.env
+*.log
+
+# Временные файлы
+.DS_Store
+Thumbs.db
+
+# Локальные настройки
+.vscode/
+.idea/
+
+# Фронтенд
+public/scripts/dashboard/*.js.bak
