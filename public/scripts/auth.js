@@ -1,8 +1,8 @@
 // ====================== AUTH.JS — НОВАЯ ВЕРСИЯ ДЛЯ БЭКЕНДА ======================
 // Автоматически определяет окружение
 const API_BASE = window.location.hostname === 'localhost' 
-    ? 'http://localhost:10000'  // или ваш локальный порт
-    : 'https://finance-app-2-0.onrender.com';
+    ? 'http://localhost:3000/api'  // ← ИСПРАВЛЕНО: порт 3000, добавлен /api
+    : 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'POST', body = null) {
   const res = await fetch(API_BASE + endpoint, {
@@ -10,9 +10,14 @@ async function apiRequest(endpoint, method = 'POST', body = null) {
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : null
   });
+  
+  if (!res.ok) {
+    const error = await res.text();
+    throw new Error(error);
+  }
+  
   return res.json();
 }
-
 
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toastContainer');

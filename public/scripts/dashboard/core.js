@@ -9,7 +9,10 @@ let currentTopUpGoalId = null;
 let currentSpendGoalId = null;
 
 // ====================== API КОНФИГУРАЦИЯ ======================
-const API_BASE = 'http://localhost:3000/api';
+// ====================== API КОНФИГУРАЦИЯ ======================
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api'  // ← ИСПРАВЛЕНО
+    : 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
   const token = localStorage.getItem('token');
