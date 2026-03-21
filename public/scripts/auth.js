@@ -1,31 +1,4 @@
-// ====================== AUTH.JS — НОВАЯ ВЕРСИЯ ДЛЯ БЭКЕНДА ======================
-// Автоматически определяет окружение
-const API_BASE = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api'  // ← ИСПРАВЛЕНО: порт 3000, добавлен /api
-    : 'https://finance-app-2-0.onrender.com/api';
-
-async function apiRequest(endpoint, method = 'POST', body = null) {
-  try {
-    const res = await fetch(API_BASE + endpoint, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: body ? JSON.stringify(body) : null
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      // Возвращаем объект с ошибкой, а не выбрасываем исключение
-      return { success: false, message: data.message || 'Ошибка сервера' };
-    }
-
-    return data;
-  } catch (err) {
-    console.error('Network error:', err);
-    return { success: false, message: 'Ошибка сети. Проверьте подключение.' };
-  }
-}
-
+// ====================== AUTH.JS — ЛОКАЛЬНАЯ ВЕРСИЯ ======================
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -40,14 +13,11 @@ function showToast(msg, type = 'success') {
 
 // ====================== ЗАГРУЗКА ======================
 document.addEventListener('DOMContentLoaded', () => {
-  // Очистка полей (на случай автозаполнения)
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPassword').value = '';
   document.getElementById('regName').value = '';
   document.getElementById('regEmail').value = '';
   document.getElementById('regPassword').value = '';
-
-  // По умолчанию — вкладка "Вход"
   switchToLogin();
 });
 
@@ -91,30 +61,46 @@ document.getElementById('registerForm').onsubmit = async (e) => {
 
   if (password.length < 6) return showToast('Пароль минимум 6 символов', 'error');
 
-  const result = await apiRequest('/auth/register', 'POST', { name, email, password });
-
-  if (result.success) {
-    localStorage.setItem('token', result.token);
-    showToast('Аккаунт создан! Входим...', 'success');
-    setTimeout(() => window.location.href = 'dashboard.html', 800);
-  } else {
-    showToast(result.message || 'Ошибка регистрации', 'error');
+  let users = JSON.parse(localStorage.getItem('users') || '[]');
+  if (users.some(u => u.email === email)) {
+    return showToast('Пользователь с таким email уже существует', 'error');
   }
+
+  const newUser = {
+    email,
+    name,
+    password, // В реальном приложении нужно хэшировать, но для простоты оставим как есть
+    avatar: '👤',
+    data: {
+      transactions: [],
+      goals: [],
+      expenseCategories: ['Еда', 'Транспорт', 'Жильё', 'Развлечения', 'Одежда', 'Здоровье', 'Красота', 'Связь', 'Другое'],
+      incomeCategories: ['Зарплата', 'Фриланс', 'Инвестиции', 'Подарки', 'Пенсия', 'Возврат долга', 'Другие доходы']
+    }
+  };
+
+  users.push(newUser);
+  localStorage.setItem('users', JSON.stringify(users));
+  localStorage.setItem('token', email);
+
+  showToast('Аккаунт создан! Входим...', 'success');
+  setTimeout(() => window.location.href = 'dashboard.html', 800);
 };
 
 // ====================== ВХОД ======================
-document.getElementById('loginForm').onsubmit = async (e) => {
+document.getElementById('loginForm').onsubmit = (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const password = document.getElementById('loginPassword').value;
 
-  const result = await apiRequest('/auth/login', 'POST', { email, password });
+  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  const user = users.find(u => u.email === email && u.password === password);
 
-  if (result.success) {
-    localStorage.setItem('token', result.token);
+  if (user) {
+    localStorage.setItem('token', email);
     showToast('Вход выполнен успешно!', 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 800);
   } else {
-    showToast(result.message || 'Неверный email или пароль', 'error');
+    showToast('Неверный email или пароль', 'error');
   }
 };

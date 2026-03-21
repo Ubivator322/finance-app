@@ -1,14 +1,10 @@
-// ====================== GOALS.JS — НОВАЯ ВЕРСИЯ ДЛЯ БЭКЕНДА ======================
-
 async function renderGoals() {
   const list = document.getElementById('goalsList');
   const goals = currentUser.data.goals || [];
-  
   if (goals.length === 0) {
     list.innerHTML = `<p class="text-zinc-500 text-center py-12">Пока нет целей. Создайте первую!</p>`;
     return;
   }
-
   list.innerHTML = goals.map(g => {
     const percent = g.target > 0 ? Math.min(Math.round((g.current / g.target) * 100), 100) : 0;
     return `
@@ -35,6 +31,7 @@ function showGoalModal() {
   document.getElementById('goalName').value = '';
   document.getElementById('goalTarget').value = '';
   document.getElementById('goalDeadline').value = '';
+  document.getElementById('cancelGoal').onclick = () => modal.classList.add('hidden');
   document.getElementById('saveGoal').onclick = saveGoal;
 }
 
@@ -46,29 +43,30 @@ async function saveGoal() {
   if (!name || !target || target <= 0) return showToast('Введите название и сумму', 'error');
 
   const result = await apiRequest('/goals', 'POST', { name, target, deadline: deadline || null });
-
-  if (result.success) {
+  if (result && result.success) {
     await refreshUserData();
     document.getElementById('modalGoal').classList.add('hidden');
     showToast('✅ Цель создана!', 'success');
   } else {
-    showToast(result.message || 'Ошибка создания цели', 'error');
+    showToast(result?.message || 'Ошибка создания цели', 'error');
   }
 }
 
 window.deleteGoal = async function(id) {
   showConfirm("Удалить цель?", "Это действие нельзя отменить.", async () => {
     const result = await apiRequest(`/goals/${id}`, 'DELETE');
-    if (result.success) {
+    if (result && result.success) {
       await refreshUserData();
-      showToast('Цель успешно удалена', 'success');
+      showToast('Цель удалена', 'success');
+    } else {
+      showToast(result?.message || 'Ошибка удаления', 'error');
     }
   });
 };
 
-// ====================== ПОПОЛНЕНИЕ ЦЕЛИ ИЗ БАЛАНСА ======================
 window.topUpFromBalance = function(goalId) {
   const goal = currentUser.data.goals.find(g => g.id === goalId);
+  if (!goal) return;
   currentTopUpGoalId = goalId;
   document.getElementById('topUpGoalName').textContent = `Цель: ${goal.name}`;
   document.getElementById('topUpAmount').value = '';
@@ -82,25 +80,35 @@ window.confirmTopUpFromBalance = async function() {
   const goal = currentUser.data.goals.find(g => g.id === currentTopUpGoalId);
   const remaining = goal.target - goal.current;
   const toGoal = Math.min(amount, remaining);
+  const excess = amount - toGoal;
 
+  // Создаём расход на пополнение цели
   const result = await apiRequest('/transactions', 'POST', {
     date: new Date().toISOString().slice(0, 10),
     category: 'Перевод на цель',
     amount: -amount,
     desc: `Пополнение "${goal.name}"`,
-    fromBalanceToGoal: true,
-    fromGoalId: null,
     toGoalId: goal.id
   });
 
-  if (result.success) {
+  if (result && result.success) {
+    if (excess > 0) {
+      // Возврат остатка (доход)
+      await apiRequest('/transactions', 'POST', {
+        date: new Date().toISOString().slice(0, 10),
+        category: 'Возврат остатка',
+        amount: excess,
+        desc: `Остаток от пополнения цели`,
+      });
+    }
     await refreshUserData();
     closeTopUpModal();
     showToast(`${toGoal.toLocaleString('ru-RU')} ₽ зачислено на цель`, 'success');
+  } else {
+    showToast(result?.message || 'Ошибка пополнения', 'error');
   }
 };
 
-// ====================== СПИСАНИЕ С ЦЕЛИ ======================
 window.spendFromGoal = function(goalId) {
   const goal = currentUser.data.goals.find(g => g.id === goalId);
   if (!goal || goal.current <= 0) return showToast('На цели нет средств', 'error');
@@ -120,14 +128,15 @@ window.confirmSpendFromGoal = async function() {
     category: 'Списание с цели',
     amount: amount,
     desc: `Списание с "${goal.name}"`,
-    isGoalReturn: true,
     fromGoalId: goal.id
   });
 
-  if (result.success) {
+  if (result && result.success) {
     await refreshUserData();
     closeSpendModal();
     showToast(`✅ ${amount.toLocaleString('ru-RU')} ₽ переведено на баланс`, 'success');
+  } else {
+    showToast(result?.message || 'Ошибка списания', 'error');
   }
 };
 
