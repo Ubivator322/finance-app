@@ -1,18 +1,18 @@
+// ====================== OVERVIEW.JS — ИСПРАВЛЕННЫЙ РАСЧЁТ БАЛАНСА ======================
 
 function renderOverview() {
-  let trans = currentUser.data.transactions || [];
-  trans = getRealTransactions(trans);
+  const allTrans = currentUser.data.transactions || [];
+  const realTrans = getRealTransactions(allTrans);   // только для операционных доходов/расходов
 
-  let freeBalance = 0, totalExpense = 0, totalIncome = 0;
+  // === СВОБОДНЫЙ БАЛАНС (учитывает ВСЕ переводы на/с целей) ===
+  const freeBalance = allTrans.reduce((sum, t) => sum + t.amount, 0);
 
-  trans.forEach(t => {
-    if (t.amount < 0) {
-      freeBalance += t.amount;
-      totalExpense += Math.abs(t.amount);
-    } else {
-      freeBalance += t.amount;
-      totalIncome += t.amount;
-    }
+  // === ОПЕРАЦИОННЫЕ расходы и доходы (без переводов на цели) ===
+  let totalExpense = 0;
+  let totalIncome = 0;
+  realTrans.forEach(t => {
+    if (t.amount < 0) totalExpense += Math.abs(t.amount);
+    else totalIncome += t.amount;
   });
 
   document.getElementById('totalBalance').textContent = freeBalance.toLocaleString('ru-RU') + ' ₽';
@@ -36,17 +36,23 @@ function renderTransactions() {
 
 function renderCategoryChart() {
   const ctx = document.getElementById('categoryChart');
-  if (categoryChart && typeof categoryChart.destroy === 'function') {
-    categoryChart.destroy();
-  }
-  let trans = getRealTransactions(currentUser.data.transactions || []);
+  if (categoryChart && typeof categoryChart.destroy === 'function') categoryChart.destroy();
+  
+  const realTrans = getRealTransactions(currentUser.data.transactions || []);
   const dataByCat = {};
-  trans.filter(t => t.amount < 0).forEach(t => {
+  realTrans.filter(t => t.amount < 0).forEach(t => {
     dataByCat[t.category] = (dataByCat[t.category] || 0) + Math.abs(t.amount);
   });
+
   categoryChart = new Chart(ctx, {
     type: 'doughnut',
-    data: { labels: Object.keys(dataByCat), datasets: [{ data: Object.values(dataByCat), backgroundColor: ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6'] }] },
+    data: { 
+      labels: Object.keys(dataByCat), 
+      datasets: [{ 
+        data: Object.values(dataByCat), 
+        backgroundColor: ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6'] 
+      }] 
+    },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
   });
 }

@@ -1,3 +1,5 @@
+// ====================== GOALS.JS — ИСПРАВЛЕННАЯ ВЕРСИЯ ======================
+
 async function renderGoals() {
   const list = document.getElementById('goalsList');
   const goals = currentUser.data.goals || [];
@@ -68,42 +70,37 @@ window.topUpFromBalance = function(goalId) {
   const goal = currentUser.data.goals.find(g => g.id === goalId);
   if (!goal) return;
   currentTopUpGoalId = goalId;
-  document.getElementById('topUpGoalName').textContent = `Цель: ${goal.name}`;
+  document.getElementById('topUpGoalName').textContent = `Цель: ${goal.name} (осталось ${ (goal.target - goal.current).toLocaleString('ru-RU') } ₽)`;
   document.getElementById('topUpAmount').value = '';
   document.getElementById('modalTopUpFromBalance').classList.remove('hidden');
 };
 
 window.confirmTopUpFromBalance = async function() {
-  let amount = parseFloat(document.getElementById('topUpAmount').value);
-  if (!amount || amount <= 0) return showToast('Введите сумму', 'error');
+  let inputAmount = parseFloat(document.getElementById('topUpAmount').value);
+  if (!inputAmount || inputAmount <= 0) return showToast('Введите сумму', 'error');
 
   const goal = currentUser.data.goals.find(g => g.id === currentTopUpGoalId);
   const remaining = goal.target - goal.current;
-  const toGoal = Math.min(amount, remaining);
-  const excess = amount - toGoal;
+  const actualAmount = Math.min(inputAmount, remaining);
 
-  // Создаём расход на пополнение цели
+  if (actualAmount <= 0) return showToast('Цель уже достигнута!', 'error');
+
   const result = await apiRequest('/transactions', 'POST', {
     date: new Date().toISOString().slice(0, 10),
-    category: 'Перевод на цель',
-    amount: -amount,
+    category: 'Пополнение цели',
+    amount: -actualAmount,
     desc: `Пополнение "${goal.name}"`,
     toGoalId: goal.id
   });
 
   if (result && result.success) {
-    if (excess > 0) {
-      // Возврат остатка (доход)
-      await apiRequest('/transactions', 'POST', {
-        date: new Date().toISOString().slice(0, 10),
-        category: 'Возврат остатка',
-        amount: excess,
-        desc: `Остаток от пополнения цели`,
-      });
-    }
     await refreshUserData();
     closeTopUpModal();
-    showToast(`${toGoal.toLocaleString('ru-RU')} ₽ зачислено на цель`, 'success');
+    if (actualAmount < inputAmount) {
+      showToast(`Пополнено ${actualAmount.toLocaleString('ru-RU')} ₽ (цель заполнена, остаток не списан)`, 'success');
+    } else {
+      showToast(`✅ ${actualAmount.toLocaleString('ru-RU')} ₽ зачислено на цель`, 'success');
+    }
   } else {
     showToast(result?.message || 'Ошибка пополнения', 'error');
   }
