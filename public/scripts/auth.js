@@ -1,4 +1,15 @@
-// ====================== AUTH.JS — ЛОКАЛЬНАЯ ВЕРСИЯ ======================
+// ====================== AUTH.JS — ПОЛНАЯ ВЕРСИЯ ДЛЯ RENDER ======================
+const API_BASE = 'https://finance-app-2-0.onrender.com/api';   // ←←← ИЗМЕНИ НА СВОЮ ССЫЛКУ С RENDER!
+
+async function apiRequest(endpoint, method = 'POST', body = null) {
+  const res = await fetch(API_BASE + endpoint, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : null
+  });
+  return res.json();
+}
+
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -61,46 +72,30 @@ document.getElementById('registerForm').onsubmit = async (e) => {
 
   if (password.length < 6) return showToast('Пароль минимум 6 символов', 'error');
 
-  let users = JSON.parse(localStorage.getItem('users') || '[]');
-  if (users.some(u => u.email === email)) {
-    return showToast('Пользователь с таким email уже существует', 'error');
+  const result = await apiRequest('/auth/register', 'POST', { name, email, password });
+
+  if (result.success) {
+    localStorage.setItem('token', result.token);
+    showToast('Аккаунт создан! Входим...', 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  } else {
+    showToast(result.message || 'Ошибка регистрации', 'error');
   }
-
-  const newUser = {
-    email,
-    name,
-    password, // В реальном приложении нужно хэшировать, но для простоты оставим как есть
-    avatar: '👤',
-    data: {
-      transactions: [],
-      goals: [],
-      expenseCategories: ['Еда', 'Транспорт', 'Жильё', 'Развлечения', 'Одежда', 'Здоровье', 'Красота', 'Связь', 'Другое'],
-      incomeCategories: ['Зарплата', 'Фриланс', 'Инвестиции', 'Подарки', 'Пенсия', 'Возврат долга', 'Другие доходы']
-    }
-  };
-
-  users.push(newUser);
-  localStorage.setItem('users', JSON.stringify(users));
-  localStorage.setItem('token', email);
-
-  showToast('Аккаунт создан! Входим...', 'success');
-  setTimeout(() => window.location.href = 'dashboard.html', 800);
 };
 
 // ====================== ВХОД ======================
-document.getElementById('loginForm').onsubmit = (e) => {
+document.getElementById('loginForm').onsubmit = async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const password = document.getElementById('loginPassword').value;
 
-  const users = JSON.parse(localStorage.getItem('users') || '[]');
-  const user = users.find(u => u.email === email && u.password === password);
+  const result = await apiRequest('/auth/login', 'POST', { email, password });
 
-  if (user) {
-    localStorage.setItem('token', email);
+  if (result.success) {
+    localStorage.setItem('token', result.token);
     showToast('Вход выполнен успешно!', 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 800);
   } else {
-    showToast('Неверный email или пароль', 'error');
+    showToast(result.message || 'Неверный email или пароль', 'error');
   }
 };
