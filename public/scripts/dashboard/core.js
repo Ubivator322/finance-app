@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ИСПРАВЛЕННАЯ ВЕРСИЯ (с защитой) ======================
+// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ (с защитой) ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -8,15 +8,11 @@ let currentPeriod = 6;
 let currentTopUpGoalId = null;
 let currentSpendGoalId = null;
 
-// === ТВОЯ ССЫЛКА С RENDER ===
 const API_BASE = 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
   const token = localStorage.getItem('token');
-  const config = {
-    method,
-    headers: { 'Content-Type': 'application/json' }
-  };
+  const config = { method, headers: { 'Content-Type': 'application/json' } };
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (body) config.body = JSON.stringify(body);
 
@@ -27,7 +23,6 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
       window.location.href = 'index.html';
       return null;
     }
-    if (!res.ok) throw new Error((await res.json()).message || 'Ошибка');
     return await res.json();
   } catch (err) {
     showToast(err.message || 'Ошибка соединения', 'error');
@@ -75,24 +70,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Кнопки — с защитой (чтобы не падало, если функция ещё не загрузилась)
-  const addExpenseBtn = document.getElementById('addExpenseBtn');
-  const addIncomeBtn = document.getElementById('addIncomeBtn');
-  const addGoalBtn = document.getElementById('addGoalBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
+  // === КНОПКИ С ЗАЩИТОЙ ===
+  document.getElementById('addExpenseBtn').addEventListener('click', () => {
+    if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
+    else console.error('showExpenseModal не найдена');
+  });
 
-  if (addExpenseBtn) addExpenseBtn.addEventListener('click', () => {
-    if (typeof showExpenseModal === 'function') showExpenseModal();
+  document.getElementById('addIncomeBtn').addEventListener('click', () => {
+    if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
+    else console.error('showIncomeModal не найдена');
   });
-  if (addIncomeBtn) addIncomeBtn.addEventListener('click', () => {
-    if (typeof showIncomeModal === 'function') showIncomeModal();
-  });
-  if (addGoalBtn) addGoalBtn.addEventListener('click', () => {
-    if (typeof showGoalModal === 'function') showGoalModal();
-  });
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
-  // Табы и периоды
+  document.getElementById('addGoalBtn').addEventListener('click', () => {
+    if (typeof window.showGoalModal === 'function') window.showGoalModal();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Табы
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
