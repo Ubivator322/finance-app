@@ -55,15 +55,19 @@ async function saveGoal() {
 }
 
 window.deleteGoal = async function(id) {
-  showConfirm("Удалить цель?", "Это действие нельзя отменить.", async () => {
-    const result = await apiRequest(`/goals/${id}`, 'DELETE');
-    if (result && result.success) {
-      await refreshUserData();
-      showToast('Цель удалена', 'success');
-    } else {
-      showToast(result?.message || 'Ошибка удаления', 'error');
+  showConfirm(
+    "Удалить цель?", 
+    "Все средства с цели автоматически вернутся на основной баланс.<br>Это действие нельзя отменить.", 
+    async () => {
+      const result = await apiRequest(`/goals/${id}`, 'DELETE');
+      if (result && result.success) {
+        await refreshUserData();
+        showToast('Цель удалена, средства возвращены ✅', 'success');
+      } else {
+        showToast(result?.message || 'Ошибка удаления', 'error');
+      }
     }
-  });
+  );
 };
 
 window.topUpFromBalance = function(goalId) {

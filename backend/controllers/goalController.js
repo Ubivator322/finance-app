@@ -22,7 +22,7 @@ const createGoal = (req, res) => {
 
 const updateGoal = (req, res) => {
   const { id } = req.params;
-  const { current, amount, action } = req.body; // action: 'topup' или 'spend'
+  const { current, amount, action } = req.body;
 
   if (action === 'topup') {
     db.prepare('UPDATE goals SET current = current + ? WHERE id = ? AND user_id = ?')
@@ -36,7 +36,34 @@ const updateGoal = (req, res) => {
 };
 
 const deleteGoal = (req, res) => {
-  db.prepare('DELETE FROM goals WHERE id = ? AND user_id = ?').run(req.params.id, req.user.id);
+  const goal = db.prepare('SELECT * FROM goals WHERE id = ? AND user_id = ?')
+    .get(req.params.id, req.user.id);
+
+  if (!goal) return res.status(404).json({ message: 'Цель не найдена' });
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  // === ВОЗВРАТ ДЕНЕГ НА ОСНОВНОЙ БАЛАНС ===
+  if (goal.current > 0) {
+    db.prepare(`
+      INSERT INTO transactions (
+        user_id, date, category, amount, desc, 
+        fromGoalId, isGoalReturn
+      ) VALUES (?, ?, ?, ?, ?, ?, 1)
+    `).run(
+      req.user.id,
+      today,
+      'Возврат с удалённой цели',
+      goal.current,
+      `Возврат средств с цели "${goal.name}"`,
+      goal.id
+    );
+  }
+
+  // Удаляем цель (ON DELETE SET NULL сработает автоматически)
+  db.prepare('DELETE FROM goals WHERE id = ? AND user_id = ?')
+    .run(req.params.id, req.user.id);
+
   res.json({ success: true });
 };
 
