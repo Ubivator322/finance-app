@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ПОЛНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ ======================
+// ====================== CORE.JS — ИСПРАВЛЕННАЯ ВЕРСИЯ (с защитой) ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -8,7 +8,7 @@ let currentPeriod = 6;
 let currentTopUpGoalId = null;
 let currentSpendGoalId = null;
 
-// === ИЗМЕНИ НА СВОЮ ССЫЛКУ С RENDER ===
+// === ТВОЯ ССЫЛКА С RENDER ===
 const API_BASE = 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
@@ -35,14 +35,12 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
   }
 }
 
-// ====================== ЗАГРУЗКА ДАННЫХ ======================
 async function loadUserData() {
   const result = await apiRequest('/user');
   if (!result?.success) {
     window.location.href = 'index.html';
     return false;
   }
-
   currentUser = result.user;
   document.getElementById('userName').textContent = currentUser.name || 'Пользователь';
   updateSidebarAvatar();
@@ -77,7 +75,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Табы
+  // Кнопки — с защитой (чтобы не падало, если функция ещё не загрузилась)
+  const addExpenseBtn = document.getElementById('addExpenseBtn');
+  const addIncomeBtn = document.getElementById('addIncomeBtn');
+  const addGoalBtn = document.getElementById('addGoalBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (addExpenseBtn) addExpenseBtn.addEventListener('click', () => {
+    if (typeof showExpenseModal === 'function') showExpenseModal();
+  });
+  if (addIncomeBtn) addIncomeBtn.addEventListener('click', () => {
+    if (typeof showIncomeModal === 'function') showIncomeModal();
+  });
+  if (addGoalBtn) addGoalBtn.addEventListener('click', () => {
+    if (typeof showGoalModal === 'function') showGoalModal();
+  });
+  if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
+  // Табы и периоды
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
@@ -91,13 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Кнопки
-  document.getElementById('addExpenseBtn').addEventListener('click', showExpenseModal);
-  document.getElementById('addIncomeBtn').addEventListener('click', showIncomeModal);
-  document.getElementById('addGoalBtn').addEventListener('click', showGoalModal);
-  document.getElementById('logoutBtn').addEventListener('click', logout);
-
-  // Периоды
   document.querySelectorAll('.period-btn').forEach(btn => {
     btn.addEventListener('click', () => setPeriod(parseInt(btn.dataset.period)));
   });
@@ -117,6 +125,5 @@ async function refreshUserData() {
   if (document.getElementById('goalsTab').classList.contains('active')) renderGoals();
 }
 
-// Экспорт функций
 window.apiRequest = apiRequest;
 window.refreshUserData = refreshUserData;
