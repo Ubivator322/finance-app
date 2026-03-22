@@ -57,7 +57,7 @@ async function saveGoal() {
 window.deleteGoal = async function(id) {
   showConfirm(
     "Удалить цель?", 
-    "Все средства с цели автоматически вернутся на основной баланс.<br>Это действие нельзя отменить.", 
+    "Все средства с цели автоматически вернутся на основной баланс", 
     async () => {
       const result = await apiRequest(`/goals/${id}`, 'DELETE');
       if (result && result.success) {
