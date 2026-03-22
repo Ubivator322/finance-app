@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ИСПРАВЛЕННАЯ ВЕРСИЯ ======================
+// ====================== CORE.JS — ПОЛНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -8,52 +8,37 @@ let currentPeriod = 6;
 let currentTopUpGoalId = null;
 let currentSpendGoalId = null;
 
-// === СЮДА ВСТАВЬ СВОЮ ССЫЛКУ С RENDER ===
-const API_BASE = 'https://finance-app-2-0.onrender.com/api';   // ← ИЗМЕНИ НА СВОЮ!
+// === ИЗМЕНИ НА СВОЮ ССЫЛКУ С RENDER ===
+const API_BASE = 'https://finance-app-2-0.onrender.com/api';
 
 async function apiRequest(endpoint, method = 'GET', body = null) {
   const token = localStorage.getItem('token');
-  
-  console.log(`→ Запрос: ${method} ${endpoint}`); // для отладки
-
   const config = {
     method,
     headers: { 'Content-Type': 'application/json' }
   };
-
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (body) config.body = JSON.stringify(body);
 
   try {
     const res = await fetch(API_BASE + endpoint, config);
-    
     if (res.status === 401) {
-      console.log('❌ Токен недействителен');
       localStorage.removeItem('token');
       window.location.href = 'index.html';
       return null;
     }
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'Ошибка сервера');
-    }
-
-    const data = await res.json();
-    console.log('✅ Ответ:', data);
-    return data;
+    if (!res.ok) throw new Error((await res.json()).message || 'Ошибка');
+    return await res.json();
   } catch (err) {
-    console.error('API Error:', err);
-    showToast(err.message || 'Ошибка соединения с сервером', 'error');
+    showToast(err.message || 'Ошибка соединения', 'error');
     return null;
   }
 }
 
+// ====================== ЗАГРУЗКА ДАННЫХ ======================
 async function loadUserData() {
   const result = await apiRequest('/user');
-  
-  if (!result || !result.success) {
-    console.log('❌ Не удалось загрузить пользователя');
+  if (!result?.success) {
     window.location.href = 'index.html';
     return false;
   }
@@ -64,14 +49,58 @@ async function loadUserData() {
   return true;
 }
 
+function updateSidebarAvatar() {
+  const el = document.getElementById('sidebarAvatar');
+  if (!el || !currentUser) return;
+  if (currentUser.avatar && currentUser.avatar.startsWith('data:image')) {
+    el.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover rounded-2xl">`;
+  } else {
+    el.innerHTML = `<span class="text-3xl">${currentUser.avatar || '👤'}</span>`;
+  }
+}
+
 // ====================== ЗАПУСК ======================
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Запуск dashboard...');
   const loaded = await loadUserData();
   if (!loaded) return;
 
-  // ... (тема, табы, кнопки — оставляем как было раньше)
-  // (я оставил только главное, чтобы не перегружать)
+  // Тема
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+  }
+
+  // Табы
+  document.querySelectorAll('.tab-nav').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
+      btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+      document.getElementById('pageTitle').textContent = btn.textContent.trim();
+
+      if (btn.dataset.tab === 'analytics') renderAnalytics();
+      if (btn.dataset.tab === 'goals') renderGoals();
+    });
+  });
+
+  // Кнопки
+  document.getElementById('addExpenseBtn').addEventListener('click', showExpenseModal);
+  document.getElementById('addIncomeBtn').addEventListener('click', showIncomeModal);
+  document.getElementById('addGoalBtn').addEventListener('click', showGoalModal);
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Периоды
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', () => setPeriod(parseInt(btn.dataset.period)));
+  });
 
   renderOverview();
 });
@@ -88,5 +117,6 @@ async function refreshUserData() {
   if (document.getElementById('goalsTab').classList.contains('active')) renderGoals();
 }
 
+// Экспорт функций
 window.apiRequest = apiRequest;
 window.refreshUserData = refreshUserData;
