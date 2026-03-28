@@ -80,31 +80,42 @@ window.topUpFromBalance = function(goalId) {
 };
 
 window.confirmTopUpFromBalance = async function() {
-  let inputAmount = parseFloat(document.getElementById('topUpAmount').value);
-  if (!inputAmount || inputAmount <= 0) return showToast('Введите сумму', 'error');
+  let requested = parseFloat(document.getElementById('topUpAmount').value);
+  if (!requested || requested <= 0) return showToast('Введите сумму', 'error');
 
   const goal = currentUser.data.goals.find(g => g.id === currentTopUpGoalId);
   const remaining = goal.target - goal.current;
-  const actualAmount = Math.min(inputAmount, remaining);
+  const freeBalance = currentUser.data.transactions.reduce((sum, t) => sum + t.amount, 0);
 
-  if (actualAmount <= 0) return showToast('Цель уже достигнута!', 'error');
+  if (requested > freeBalance) {
+    return showToast('На балансе недостаточно средств!', 'error');
+  }
 
+  // Списываем ПОЛНУЮ сумму
   const result = await apiRequest('/transactions', 'POST', {
     date: new Date().toISOString().slice(0, 10),
     category: 'Пополнение цели',
-    amount: -actualAmount,
+    amount: -requested,
     desc: `Пополнение "${goal.name}"`,
     toGoalId: goal.id
   });
 
   if (result && result.success) {
+    // Если был излишек — сразу возвращаем его
+    const excess = requested - remaining;
+    if (excess > 0) {
+      await apiRequest('/transactions', 'POST', {
+        date: new Date().toISOString().slice(0, 10),
+        category: 'Возврат излишка',
+        amount: excess,
+        desc: `Излишек с цели "${goal.name}"`,
+        isGoalReturn: 1
+      });
+    }
+
     await refreshUserData();
     closeTopUpModal();
-    if (actualAmount < inputAmount) {
-      showToast(`Пополнено ${actualAmount.toLocaleString('ru-RU')} ₽ (цель заполнена, остаток не списан)`, 'success');
-    } else {
-      showToast(`✅ ${actualAmount.toLocaleString('ru-RU')} ₽ зачислено на цель`, 'success');
-    }
+    showToast(`✅ Пополнено ${Math.min(requested, remaining).toLocaleString('ru-RU')} ₽ (излишек ${excess > 0 ? excess.toLocaleString('ru-RU') : 0} ₽ возвращён)`, 'success');
   } else {
     showToast(result?.message || 'Ошибка пополнения', 'error');
   }
