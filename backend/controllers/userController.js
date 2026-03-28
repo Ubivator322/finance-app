@@ -34,12 +34,26 @@ const getUser = (req, res) => {
 const updateUser = (req, res) => {
   const { name, avatar } = req.body;
 
-  const stmt = db.prepare(`
-    UPDATE users 
-    SET name = ?, avatar = ? 
-    WHERE id = ?
-  `);
-  stmt.run(name || null, avatar || '👤', req.user.id);
+  const setParts = [];
+  const params = [];
+
+  if (name !== undefined) {
+    setParts.push('name = ?');
+    params.push(name || null);
+  }
+  if (avatar !== undefined) {
+    setParts.push('avatar = ?');
+    params.push(avatar || '👤');
+  }
+
+  if (setParts.length === 0) {
+    return res.json({ success: true, message: 'Ничего не изменилось' });
+  }
+
+  const query = `UPDATE users SET ${setParts.join(', ')} WHERE id = ?`;
+  params.push(req.user.id);
+
+  db.prepare(query).run(...params);
 
   res.json({ success: true, message: 'Профиль обновлён' });
 };

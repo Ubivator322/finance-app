@@ -27,6 +27,33 @@ async function renderGoals() {
   }).join('');
 }
 
+window.showGoalModal = function() {
+  const modal = document.getElementById('modalGoal');
+  modal.classList.remove('hidden');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalTarget').value = '';
+  document.getElementById('goalDeadline').value = '';
+  document.getElementById('cancelGoal').onclick = () => modal.classList.add('hidden');
+  document.getElementById('saveGoal').onclick = saveGoal;
+};
+
+async function saveGoal() {
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const deadline = document.getElementById('goalDeadline').value;
+
+  if (!name || !target || target <= 0) return showToast('Введите название и сумму', 'error');
+
+  const result = await apiRequest('/goals', 'POST', { name, target, deadline: deadline || null });
+  if (result && result.success) {
+    await refreshUserData();
+    document.getElementById('modalGoal').classList.add('hidden');
+    showToast('✅ Цель создана!', 'success');
+  } else {
+    showToast(result?.message || 'Ошибка создания цели', 'error');
+  }
+}
+
 window.topUpFromBalance = function(goalId) {
   const goal = currentUser.data.goals.find(g => g.id === goalId);
   if (!goal) return;
@@ -78,9 +105,17 @@ window.confirmTopUpFromBalance = async function() {
   }
 };
 
-// остальные функции без изменений
-window.spendFromGoal = function(goalId) { /* ... */ };
-window.confirmSpendFromGoal = async function() { /* ... */ };
-window.deleteGoal = async function(id) { /* ... */ };
+window.deleteGoal = async function(id) {
+  showConfirm("Удалить цель?", "Все средства вернутся на баланс.<br>Действие нельзя отменить.", async () => {
+    const result = await apiRequest(`/goals/${id}`, 'DELETE');
+    if (result?.success) {
+      await refreshUserData();
+      showToast('Цель удалена ✅', 'success');
+    } else {
+      showToast(result?.message || 'Ошибка', 'error');
+    }
+  });
+};
+
 window.closeTopUpModal = () => document.getElementById('modalTopUpFromBalance').classList.add('hidden');
 window.closeSpendModal = () => document.getElementById('modalSpendFromGoal').classList.add('hidden');

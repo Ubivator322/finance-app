@@ -25,13 +25,43 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .toast { animation: toastIn 0.4s ease forwards; }
-    @keyframes toastIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    canvas { max-height: 220px; }
-    main::-webkit-scrollbar, #transactionsList::-webkit-scrollbar { display: none; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .toast {
+      animation: toastIn 0.4s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    canvas {
+      max-height: 220px;
+    }
+
+    main::-webkit-scrollbar,
+    #transactionsList::-webkit-scrollbar {
+      display: none;
+    }
   </style>
 </head>
 
@@ -283,13 +313,6 @@
           class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-4 rounded-3xl p-8">
           <h3 class="text-xl font-semibold text-center mb-6 text-zinc-900 dark:text-white">Выберите аватар</h3>
           <div class="grid grid-cols-6 gap-4 mb-8" id="emojiGrid"></div>
-          <div class="text-center">
-            <label
-              class="cursor-pointer block bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 py-4 rounded-3xl text-violet-500 font-medium">
-              📸 Загрузить своё фото
-              <input type="file" id="avatarUpload" accept="image/*" class="hidden" onchange="uploadAvatar(event)">
-            </label>
-          </div>
           <button onclick="closeAvatarModal()"
             class="w-full mt-6 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button>
         </div>
@@ -400,7 +423,7 @@
 
 
 
-  
+
 </body>
 
 </html>
