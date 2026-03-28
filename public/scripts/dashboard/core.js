@@ -109,8 +109,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function logout() {
-  localStorage.removeItem('token');
-  window.location.href = 'index.html';
+  showConfirm("Выйти из аккаунта?", "Вы действительно хотите выйти?", () => {
+    localStorage.removeItem('token');
+    window.location.href = 'index.html';
+  });
 }
 
 async function refreshUserData() {

@@ -75,24 +75,27 @@ function updateAvatar() {
 
 // ====================== ОЧИСТКА И ЭКСПОРТ ======================
 async function clearExpenses() {
-  if (!confirm('Очистить ВСЕ расходы?')) return;
-  await apiRequest('/user/clear-expenses', 'DELETE');
-  await refreshUserData();
-  showToast('Расходы очищены', 'success');
+  showConfirm("Очистить все расходы?", "Все расходные операции будут удалены безвозвратно.", async () => {
+    await apiRequest('/user/clear-expenses', 'DELETE');
+    await refreshUserData();
+    showToast('Расходы очищены', 'success');
+  });
 }
 
 async function clearIncomes() {
-  if (!confirm('Очистить ВСЕ доходы?')) return;
-  await apiRequest('/user/clear-incomes', 'DELETE');
-  await refreshUserData();
-  showToast('Доходы очищены', 'success');
+  showConfirm("Очистить все доходы?", "Все доходные операции будут удалены безвозвратно.", async () => {
+    await apiRequest('/user/clear-incomes', 'DELETE');
+    await refreshUserData();
+    showToast('Доходы очищены', 'success');
+  });
 }
 
 async function clearAll() {
-  if (!confirm('Очистить ВСЮ историю?')) return;
-  await apiRequest('/user/clear-all', 'DELETE');
-  await refreshUserData();
-  showToast('История очищена', 'success');
+  showConfirm("Очистить ВСЮ историю?", "Все транзакции и цели будут удалены безвозвратно.", async () => {
+    await apiRequest('/user/clear-all', 'DELETE');
+    await refreshUserData();
+    showToast('История очищена', 'success');
+  });
 }
 
 function exportExcel() {

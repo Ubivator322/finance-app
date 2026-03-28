@@ -1,4 +1,4 @@
-// ====================== GOALS.JS — ИСПРАВЛЕННАЯ ВЕРСИЯ ======================
+// ====================== GOALS.JS — ИСПРАВЛЕННАЯ ЛОГИКА ======================
 
 async function renderGoals() {
   const list = document.getElementById('goalsList');
@@ -56,11 +56,11 @@ async function saveGoal() {
 
 window.deleteGoal = async function(id) {
   showConfirm(
-    "Удалить цель?", 
-    "Все средства с цели автоматически вернутся на основной баланс", 
+    "Удалить цель?",
+    "Все накопленные средства автоматически вернутся на основной баланс.<br>Это действие нельзя отменить.",
     async () => {
       const result = await apiRequest(`/goals/${id}`, 'DELETE');
-      if (result && result.success) {
+      if (result?.success) {
         await refreshUserData();
         showToast('Цель удалена, средства возвращены ✅', 'success');
       } else {
@@ -74,7 +74,8 @@ window.topUpFromBalance = function(goalId) {
   const goal = currentUser.data.goals.find(g => g.id === goalId);
   if (!goal) return;
   currentTopUpGoalId = goalId;
-  document.getElementById('topUpGoalName').textContent = `Цель: ${goal.name} (осталось ${ (goal.target - goal.current).toLocaleString('ru-RU') } ₽)`;
+  const remaining = goal.target - goal.current;
+  document.getElementById('topUpGoalName').textContent = `Цель: ${goal.name} (осталось ${remaining.toLocaleString('ru-RU')} ₽)`;
   document.getElementById('topUpAmount').value = '';
   document.getElementById('modalTopUpFromBalance').classList.remove('hidden');
 };
@@ -87,35 +88,26 @@ window.confirmTopUpFromBalance = async function() {
   const remaining = goal.target - goal.current;
   const freeBalance = currentUser.data.transactions.reduce((sum, t) => sum + t.amount, 0);
 
-  if (requested > freeBalance) {
-    return showToast('На балансе недостаточно средств!', 'error');
-  }
+  if (requested > freeBalance) return showToast('На балансе недостаточно средств!', 'error');
 
-  // Списываем ПОЛНУЮ сумму
+  const actualAmount = Math.min(requested, remaining);
+
   const result = await apiRequest('/transactions', 'POST', {
     date: new Date().toISOString().slice(0, 10),
     category: 'Пополнение цели',
-    amount: -requested,
+    amount: -actualAmount,
     desc: `Пополнение "${goal.name}"`,
     toGoalId: goal.id
   });
 
-  if (result && result.success) {
-    // Если был излишек — сразу возвращаем его
-    const excess = requested - remaining;
-    if (excess > 0) {
-      await apiRequest('/transactions', 'POST', {
-        date: new Date().toISOString().slice(0, 10),
-        category: 'Возврат излишка',
-        amount: excess,
-        desc: `Излишек с цели "${goal.name}"`,
-        isGoalReturn: 1
-      });
-    }
-
+  if (result?.success) {
     await refreshUserData();
     closeTopUpModal();
-    showToast(`✅ Пополнено ${Math.min(requested, remaining).toLocaleString('ru-RU')} ₽ (излишек ${excess > 0 ? excess.toLocaleString('ru-RU') : 0} ₽ возвращён)`, 'success');
+    if (actualAmount < requested) {
+      showToast(`Пополнено ${actualAmount.toLocaleString('ru-RU')} ₽ (излишек не списан)`, 'success');
+    } else {
+      showToast(`✅ ${actualAmount.toLocaleString('ru-RU')} ₽ зачислено на цель`, 'success');
+    }
   } else {
     showToast(result?.message || 'Ошибка пополнения', 'error');
   }
@@ -143,7 +135,7 @@ window.confirmSpendFromGoal = async function() {
     fromGoalId: goal.id
   });
 
-  if (result && result.success) {
+  if (result?.success) {
     await refreshUserData();
     closeSpendModal();
     showToast(`✅ ${amount.toLocaleString('ru-RU')} ₽ переведено на баланс`, 'success');
