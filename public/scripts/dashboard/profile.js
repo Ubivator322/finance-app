@@ -66,11 +66,7 @@ async function uploadAvatar(e) {
 function updateAvatar() {
   const el = document.getElementById('profileAvatar');
   if (!el) return;
-  if (currentUser.avatar && currentUser.avatar.startsWith('data:image')) {
-    el.innerHTML = `<img src="${currentUser.avatar}" class="w-24 h-24 rounded-3xl object-cover">`;
-  } else {
-    el.textContent = currentUser.avatar || '👤';
-  }
+  el.innerHTML = currentUser.avatar || '👤';
 }
 
 // ====================== ОЧИСТКА И ЭКСПОРТ ======================

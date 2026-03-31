@@ -17,6 +17,7 @@ app.use('/api/user', require('./routes/userRoutes'));
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/goals', require('./routes/goalRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
+app.use('/api/budgets', require('./routes/budgetRoutes'));
 
 // Главная страница (dashboard)
 app.get('/', (req, res) => {
