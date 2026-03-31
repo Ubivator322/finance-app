@@ -80,13 +80,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Таб "Бюджет"
+
 document.querySelectorAll('.tab-nav').forEach(btn => {
- 
-  if (btn.dataset.tab === 'budget') {
-    btn.addEventListener('click', () => {
-      renderBudgets();
-    });
-  }
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
+    btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
+
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    const tabId = btn.dataset.tab + 'Tab';
+    const tabElement = document.getElementById(tabId);
+    if (tabElement) tabElement.classList.add('active');
+
+    document.getElementById('pageTitle').textContent = btn.textContent.trim();
+
+    // Вызываем рендер нужной вкладки
+    if (btn.dataset.tab === 'analytics') renderAnalytics();
+    if (btn.dataset.tab === 'goals') renderGoals();
+    if (btn.dataset.tab === 'budget') {
+      if (typeof window.renderBudgets === 'function') {
+        window.renderBudgets();
+      } else {
+        console.error('renderBudgets не найден — проверь подключение budget.js');
+      }
+    }
+  });
 });
 
   // ИСПРАВЛЕНО: кнопка "Добавить новую цель"
