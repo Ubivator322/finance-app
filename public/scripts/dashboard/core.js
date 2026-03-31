@@ -45,11 +45,17 @@ async function loadUserData() {
 function updateSidebarAvatar() {
   const el = document.getElementById('sidebarAvatar');
   if (!el || !currentUser) return;
+  
+  const isDark = document.documentElement.classList.contains('dark');
+  
   if (currentUser.avatar && currentUser.avatar.startsWith('data:image')) {
     el.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover rounded-2xl">`;
   } else {
     el.innerHTML = `<span class="text-3xl">${currentUser.avatar || '👤'}</span>`;
   }
+  
+  // Меняем фон в зависимости от темы
+  el.style.backgroundColor = isDark ? '#27272a' : '#f4f4f5';
 }
 
 // ====================== ЗАПУСК ======================
@@ -60,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Тема
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {
     themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -67,6 +74,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       themeToggle.textContent = isDark ? '☀️' : '🌙';
+
+      updateSidebarAvatar();
     });
   }
 
@@ -81,30 +90,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Таб "Бюджет"
 
-document.querySelectorAll('.tab-nav').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
-    btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
+  document.querySelectorAll('.tab-nav').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
+      btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
 
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    const tabId = btn.dataset.tab + 'Tab';
-    const tabElement = document.getElementById(tabId);
-    if (tabElement) tabElement.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      const tabId = btn.dataset.tab + 'Tab';
+      const tabElement = document.getElementById(tabId);
+      if (tabElement) tabElement.classList.add('active');
 
-    document.getElementById('pageTitle').textContent = btn.textContent.trim();
+      document.getElementById('pageTitle').textContent = btn.textContent.trim();
 
-    // Вызываем рендер нужной вкладки
-    if (btn.dataset.tab === 'analytics') renderAnalytics();
-    if (btn.dataset.tab === 'goals') renderGoals();
-    if (btn.dataset.tab === 'budget') {
-      if (typeof window.renderBudgets === 'function') {
-        window.renderBudgets();
-      } else {
-        console.error('renderBudgets не найден — проверь подключение budget.js');
+      // Вызываем рендер нужной вкладки
+      if (btn.dataset.tab === 'analytics') renderAnalytics();
+      if (btn.dataset.tab === 'goals') renderGoals();
+      if (btn.dataset.tab === 'budget') {
+        if (typeof window.renderBudgets === 'function') {
+          window.renderBudgets();
+        } else {
+          console.error('renderBudgets не найден — проверь подключение budget.js');
+        }
       }
-    }
+    });
   });
-});
 
   // ИСПРАВЛЕНО: кнопка "Добавить новую цель"
   const addGoalBtn = document.getElementById('addGoalBtn');

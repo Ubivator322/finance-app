@@ -437,6 +437,22 @@
     </main>
   </div>
 
+  <div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()" 
+     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
+  <div onclick="event.stopImmediatePropagation()" 
+       class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
+    <h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3>
+    <input id="budgetLimitInput" type="number" 
+           class="w-full bg-zinc-100 dark:bg-zinc-800 text-3xl px-6 py-5 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
+    <div class="flex gap-3 mt-8">
+      <button onclick="closeBudgetModal()" 
+              class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
+      <button onclick="saveBudgetLimit()" 
+              class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+    </div>
+  </div>
+</div>
+
 
 
 
