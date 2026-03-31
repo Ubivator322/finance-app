@@ -1,9 +1,12 @@
 {
   "name": "finance-app",
   "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
   "scripts": {
     "start": "node backend/index.js",
-    "dev": "nodemon backend/index.js"
+    "dev": "nodemon backend/index.js",
+    "build": "echo 'Frontend уже собран — ничего не делаем'"
   },
   "dependencies": {
     "better-sqlite3": "^11.0.0",
