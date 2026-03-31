@@ -114,5 +114,32 @@ window.deleteGoal = async function(id) {
   });
 };
 
+window.showGoalModal = function() {
+  const modal = document.getElementById('modalGoal');
+  modal.classList.remove('hidden');
+  document.getElementById('goalName').value = '';
+  document.getElementById('goalTarget').value = '';
+  document.getElementById('goalDeadline').value = '';
+  document.getElementById('cancelGoal').onclick = () => modal.classList.add('hidden');
+  document.getElementById('saveGoal').onclick = saveGoal;
+};
+
+async function saveGoal() {
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const deadline = document.getElementById('goalDeadline').value;
+
+  if (!name || !target || target <= 0) return showToast('Введите название и сумму', 'error');
+
+  const result = await apiRequest('/goals', 'POST', { name, target, deadline: deadline || null });
+  if (result && result.success) {
+    await refreshUserData();
+    document.getElementById('modalGoal').classList.add('hidden');
+    showToast('✅ Цель создана!', 'success');
+  } else {
+    showToast(result?.message || 'Ошибка создания цели', 'error');
+  }
+}
+
 window.closeTopUpModal = () => document.getElementById('modalTopUpFromBalance').classList.add('hidden');
 window.closeSpendModal = () => document.getElementById('modalSpendFromGoal').classList.add('hidden');

@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ (с защитой) ======================
+// ====================== CORE.JS — ИСПРАВЛЕНО (кнопка цели + защита) ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -70,20 +70,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // === КНОПКИ С ЗАЩИТОЙ ===
+  // === КНОПКИ ===
   document.getElementById('addExpenseBtn').addEventListener('click', () => {
     if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
-    else console.error('showExpenseModal не найдена');
   });
 
   document.getElementById('addIncomeBtn').addEventListener('click', () => {
     if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
-    else console.error('showIncomeModal не найдена');
   });
 
-  document.getElementById('addGoalBtn').addEventListener('click', () => {
-    if (typeof window.showGoalModal === 'function') window.showGoalModal();
-  });
+  // ИСПРАВЛЕНО: кнопка "Добавить новую цель"
+  const addGoalBtn = document.getElementById('addGoalBtn');
+  if (addGoalBtn) {
+    addGoalBtn.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();   // защита от ложных срабатываний
+      if (typeof window.showGoalModal === 'function') {
+        window.showGoalModal();
+      } else {
+        console.error('showGoalModal не найдена — проверь goals.js');
+      }
+    });
+  }
 
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
@@ -99,10 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (btn.dataset.tab === 'analytics') renderAnalytics();
       if (btn.dataset.tab === 'goals') renderGoals();
     });
-  });
-
-  document.querySelectorAll('.period-btn').forEach(btn => {
-    btn.addEventListener('click', () => setPeriod(parseInt(btn.dataset.period)));
   });
 
   renderOverview();
