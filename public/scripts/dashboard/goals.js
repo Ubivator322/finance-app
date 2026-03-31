@@ -103,7 +103,7 @@ window.confirmSpendFromGoal = async function() {
 };
 
 window.deleteGoal = async function(id) {
-  showConfirm("Удалить цель?", "Все средства вернутся на баланс.<br>Действие нельзя отменить.", async () => {
+  showConfirm("Удалить цель?", "Все средства вернутся на баланс, Действие нельзя отменить.", async () => {
     const result = await apiRequest(`/goals/${id}`, 'DELETE');
     if (result?.success) {
       await refreshUserData();
