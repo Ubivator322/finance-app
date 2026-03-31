@@ -79,6 +79,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
   });
 
+  // Таб "Бюджет"
+document.querySelectorAll('.tab-nav').forEach(btn => {
+ 
+  if (btn.dataset.tab === 'budget') {
+    btn.addEventListener('click', () => {
+      renderBudgets();
+    });
+  }
+});
+
   // ИСПРАВЛЕНО: кнопка "Добавить новую цель"
   const addGoalBtn = document.getElementById('addGoalBtn');
   if (addGoalBtn) {

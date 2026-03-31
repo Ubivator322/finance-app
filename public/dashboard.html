@@ -101,6 +101,10 @@
           class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium">
           <i class="fas fa-bullseye"></i> Цели
         </button>
+        <button data-tab="budget"
+          class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium">
+          <i class="fas fa-wallet"></i> Бюджет
+        </button>
       </nav>
 
       <!-- ВЫХОД -->
@@ -212,6 +216,16 @@
           <i class="fas fa-plus"></i> Добавить новую цель
         </button>
       </div>
+
+      <!-- BUDGET TAB -->
+<div id="budgetTab" class="tab-content p-8 hidden">
+  <div class="flex justify-between items-center mb-8">
+    <h2 id="budgetMonthTitle" class="text-3xl font-semibold">Бюджет на март 2026</h2>
+    <input type="month" id="budgetMonthPicker" value="${new Date().toISOString().slice(0,7)}" 
+           onchange="setBudgetMonth(this.value)" class="bg-white dark:bg-zinc-900 rounded-3xl px-6 py-3 border border-zinc-200 dark:border-zinc-800">
+  </div>
+  <div id="budgetsList" class="grid grid-cols-2 gap-6"></div>
+</div>
 
       <!-- МОДАЛКИ (начало) -->
       <!-- Пополнить из баланса -->

@@ -1,11 +1,13 @@
 const db = require('../config/db');
 
 const getBudgets = (req, res) => {
-  const { month } = req.query; // YYYY-MM
+  const month = req.query.month || new Date().toISOString().slice(0, 7);
+
   const budgets = db.prepare(`
     SELECT * FROM budgets 
     WHERE user_id = ? AND month = ?
-  `).all(req.user.id, month || new Date().toISOString().slice(0, 7));
+  `).all(req.user.id, month);
+
   res.json({ success: true, budgets });
 };
 
@@ -13,7 +15,11 @@ const saveBudget = (req, res) => {
   const { category, limit_amount, month } = req.body;
   const currentMonth = month || new Date().toISOString().slice(0, 7);
 
-  // Удаляем старый лимит, если был
+  if (!category || !limit_amount || limit_amount <= 0) {
+    return res.status(400).json({ message: 'Категория и лимит обязательны' });
+  }
+
+  // Удаляем старый лимит (чтобы можно было обновить)
   db.prepare('DELETE FROM budgets WHERE user_id = ? AND category = ? AND month = ?')
     .run(req.user.id, category, currentMonth);
 
@@ -23,7 +29,7 @@ const saveBudget = (req, res) => {
   `);
   stmt.run(req.user.id, category, currentMonth, limit_amount);
 
-  res.json({ success: true });
+  res.json({ success: true, message: 'Бюджет сохранён' });
 };
 
 module.exports = { getBudgets, saveBudget };
