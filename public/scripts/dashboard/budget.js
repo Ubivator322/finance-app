@@ -1,4 +1,4 @@
-// ====================== BUDGET.JS — КРАСИВАЯ ВЕРСИЯ ======================
+// ====================== BUDGET.JS — ФИНАЛЬНАЯ КРАСИВАЯ ВЕРСИЯ ======================
 
 let currentBudgets = [];
 let currentMonthlyLimit = 0;
@@ -19,26 +19,56 @@ async function renderBudgets() {
   const percent = currentMonthlyLimit > 0 ? Math.min(Math.round((totalSpent / currentMonthlyLimit) * 100), 100) : 0;
   const isOver = percent > 100;
 
-  // Большая карточка общего бюджета
+  // === БОЛЬШАЯ КАРТОЧКА ОБЩЕГО БЮДЖЕТА ===
   let html = `
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} mb-10">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} mb-8 flex flex-col h-full">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-2xl font-semibold">Общий бюджет на месяц</h3>
-        <button onclick="editMonthlyBudget()" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-3xl">Изменить</button>
+        <button onclick="editMonthlyBudget()" 
+                class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl text-sm font-medium">Изменить</button>
       </div>
-      <div class="text-6xl font-bold mb-2">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
+
+      <div class="text-6xl font-bold mb-1">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
+      
       <div class="flex justify-between text-sm mb-4">
         <span class="text-red-500">Потрачено ${totalSpent.toLocaleString('ru-RU')} ₽</span>
         <span class="${remaining < 0 ? 'text-red-500' : 'text-emerald-500'}">Осталось ${remaining.toLocaleString('ru-RU')} ₽</span>
       </div>
-      <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-4 mb-2">
-        <div class="h-4 rounded-full transition-all ${isOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${percent}%"></div>
-      </div>
-      ${isOver ? `<p class="text-red-500 text-center font-medium mt-3">⚠️ Бюджет превышен на ${Math.abs(remaining).toLocaleString('ru-RU')} ₽</p>` : ''}
-    </div>
-  `;
 
-  // Список категорий
+      <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-3 mb-6">
+        <div class="h-3 rounded-full transition-all ${isOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${percent}%"></div>
+      </div>
+
+      ${isOver ? `<p class="text-red-500 text-center font-medium mb-6">⚠️ Бюджет превышен на ${Math.abs(remaining).toLocaleString('ru-RU')} ₽</p>` : ''}
+
+      <!-- НОВЫЙ БЛОК: Расходы по категориям -->
+      <div class="mt-auto pt-6 border-t border-zinc-200 dark:border-zinc-700">
+        <p class="text-xs uppercase tracking-widest text-zinc-500 mb-3">Расходы по категориям</p>
+        <div class="grid grid-cols-2 gap-3 text-sm">`;
+
+  // Показываем только категории, по которым были расходы
+  const spentByCat = {};
+  currentUser.data.transactions
+    .filter(t => t.amount < 0 && t.date.startsWith(currentMonth))
+    .forEach(t => {
+      spentByCat[t.category] = (spentByCat[t.category] || 0) + Math.abs(t.amount);
+    });
+
+  Object.keys(spentByCat).slice(0, 4).forEach(cat => {
+    html += `
+      <div class="flex justify-between">
+        <span class="text-zinc-400">${cat}</span>
+        <span class="font-medium">${spentByCat[cat].toLocaleString('ru-RU')} ₽</span>
+      </div>`;
+  });
+
+  if (Object.keys(spentByCat).length === 0) {
+    html += `<p class="text-zinc-500 text-center py-2 col-span-2">Пока нет расходов</p>`;
+  }
+
+  html += `</div></div></div>`;
+
+  // === КАРТОЧКИ КАТЕГОРИЙ ===
   html += `<div class="grid grid-cols-2 gap-6">`;
   const categories = currentUser.data.expenseCategories || [];
 
@@ -49,16 +79,18 @@ async function renderBudgets() {
     const catOver = catPercent > 100;
 
     html += `
-      <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border ${catOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'}">
-        <div class="flex justify-between mb-3">
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border ${catOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} flex flex-col">
+        <div class="flex justify-between mb-4">
           <span class="font-medium">${cat}</span>
           <span class="font-bold ${catOver ? 'text-red-500' : 'text-emerald-500'}">${spent.toLocaleString('ru-RU')} ₽</span>
         </div>
-        <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 mb-4">
-          <div class="h-2.5 rounded-full ${catOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${catPercent}%"></div>
+        <div class="flex-1">
+          <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 mb-4">
+            <div class="h-2.5 rounded-full ${catOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${catPercent}%"></div>
+          </div>
         </div>
-        <div class="flex justify-between text-xs">
-          <span class="text-zinc-500">Лимит ${budget.limit_amount.toLocaleString('ru-RU')} ₽</span>
+        <div class="flex justify-between text-xs text-zinc-500">
+          <span>Лимит ${budget.limit_amount.toLocaleString('ru-RU')} ₽</span>
           <button onclick="editBudget('${cat}')" class="text-violet-500 hover:text-violet-600 font-medium">Изменить</button>
         </div>
       </div>`;
