@@ -51,8 +51,17 @@ db.exec(`
     limit_amount REAL NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS monthly_budgets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  month TEXT NOT NULL,           -- YYYY-MM
+  total_limit REAL NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 `);
 
-console.log('✅ База данных инициализирована (SQLite + better-sqlite3)');
+console.log(' База данных инициализирована');
 
 module.exports = db;
