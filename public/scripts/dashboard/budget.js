@@ -1,4 +1,4 @@
-// ====================== BUDGET.JS — ФИНАЛЬНАЯ КРАСИВАЯ ВЕРСИЯ ======================
+// ====================== BUDGET.JS — РАСХОДЫ В СТИЛЕ "ПОСЛЕДНИЕ ОПЕРАЦИИ" ======================
 
 let currentBudgets = [];
 let currentMonthlyLimit = 0;
@@ -19,13 +19,11 @@ async function renderBudgets() {
   const percent = currentMonthlyLimit > 0 ? Math.min(Math.round((totalSpent / currentMonthlyLimit) * 100), 100) : 0;
   const isOver = percent > 100;
 
-  // === БОЛЬШАЯ КАРТОЧКА ОБЩЕГО БЮДЖЕТА ===
   let html = `
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} mb-8 flex flex-col h-full">
+    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} mb-8">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-2xl font-semibold">Общий бюджет на месяц</h3>
-        <button onclick="editMonthlyBudget()" 
-                class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl text-sm font-medium">Изменить</button>
+        <button onclick="editMonthlyBudget()" class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl text-sm font-medium">Изменить</button>
       </div>
 
       <div class="text-6xl font-bold mb-1">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
@@ -41,34 +39,33 @@ async function renderBudgets() {
 
       ${isOver ? `<p class="text-red-500 text-center font-medium mb-6">⚠️ Бюджет превышен на ${Math.abs(remaining).toLocaleString('ru-RU')} ₽</p>` : ''}
 
-      <!-- НОВЫЙ БЛОК: Расходы по категориям -->
-      <div class="mt-auto pt-6 border-t border-zinc-200 dark:border-zinc-700">
-        <p class="text-xs uppercase tracking-widest text-zinc-500 mb-3">Расходы по категориям</p>
-        <div class="grid grid-cols-2 gap-3 text-sm">`;
+      <!-- БЛОК "РАСХОДЫ ЗА МЕСЯЦ" — в стиле "Последние операции" -->
+      <div class="mt-6">
+        <p class="text-xs uppercase tracking-widest text-zinc-500 mb-4">Расходы за месяц</p>
+        <div class="max-h-80 overflow-y-auto pr-2 space-y-3 custom-scroll">`;
 
-  // Показываем только категории, по которым были расходы
-  const spentByCat = {};
-  currentUser.data.transactions
+  const monthExpenses = currentUser.data.transactions
     .filter(t => t.amount < 0 && t.date.startsWith(currentMonth))
-    .forEach(t => {
-      spentByCat[t.category] = (spentByCat[t.category] || 0) + Math.abs(t.amount);
+    .slice(0, 10); // последние 10 расходов
+
+  if (monthExpenses.length === 0) {
+    html += `<p class="text-zinc-500 text-center py-8">Пока нет расходов в этом месяце</p>`;
+  } else {
+    monthExpenses.forEach(t => {
+      html += `
+        <div class="flex justify-between items-center bg-zinc-100 dark:bg-zinc-800 rounded-3xl px-6 py-4">
+          <div>
+            <div class="font-medium">${t.category}</div>
+            <div class="text-xs text-zinc-500">${t.date}</div>
+          </div>
+          <div class="font-bold text-red-500">- ${Math.abs(t.amount).toLocaleString('ru-RU')} ₽</div>
+        </div>`;
     });
-
-  Object.keys(spentByCat).slice(0, 4).forEach(cat => {
-    html += `
-      <div class="flex justify-between">
-        <span class="text-zinc-400">${cat}</span>
-        <span class="font-medium">${spentByCat[cat].toLocaleString('ru-RU')} ₽</span>
-      </div>`;
-  });
-
-  if (Object.keys(spentByCat).length === 0) {
-    html += `<p class="text-zinc-500 text-center py-2 col-span-2">Пока нет расходов</p>`;
   }
 
   html += `</div></div></div>`;
 
-  // === КАРТОЧКИ КАТЕГОРИЙ ===
+  // Карточки категорий
   html += `<div class="grid grid-cols-2 gap-6">`;
   const categories = currentUser.data.expenseCategories || [];
 
@@ -79,15 +76,13 @@ async function renderBudgets() {
     const catOver = catPercent > 100;
 
     html += `
-      <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border ${catOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} flex flex-col">
+      <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border ${catOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'}">
         <div class="flex justify-between mb-4">
           <span class="font-medium">${cat}</span>
           <span class="font-bold ${catOver ? 'text-red-500' : 'text-emerald-500'}">${spent.toLocaleString('ru-RU')} ₽</span>
         </div>
-        <div class="flex-1">
-          <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 mb-4">
-            <div class="h-2.5 rounded-full ${catOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${catPercent}%"></div>
-          </div>
+        <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-2.5 mb-4">
+          <div class="h-2.5 rounded-full ${catOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${catPercent}%"></div>
         </div>
         <div class="flex justify-between text-xs text-zinc-500">
           <span>Лимит ${budget.limit_amount.toLocaleString('ru-RU')} ₽</span>
@@ -106,9 +101,6 @@ function getSpentByCategory(category, month) {
     .filter(t => t.category === category && t.amount < 0 && t.date.startsWith(month))
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
-
-// ====================== МОДАЛКИ ======================
-let currentEditingCategory = null;
 
 window.editMonthlyBudget = function() {
   document.getElementById('monthlyBudgetTitle').textContent = `Общий бюджет на ${currentMonth}`;
