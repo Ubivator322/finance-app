@@ -1,4 +1,4 @@
-// ====================== BUDGET.JS — РАСХОДЫ В СТИЛЕ "ПОСЛЕДНИЕ ОПЕРАЦИИ" ======================
+// ====================== BUDGET.JS — ВЫРОВНЕННЫЙ ПО НИЖНЕМУ КРАЮ ======================
 
 let currentBudgets = [];
 let currentMonthlyLimit = 0;
@@ -20,40 +20,44 @@ async function renderBudgets() {
   const isOver = percent > 100;
 
   let html = `
-    <div class="bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} mb-8">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-semibold">Общий бюджет на месяц</h3>
-        <button onclick="editMonthlyBudget()" class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl text-sm font-medium">Изменить</button>
-      </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-      <div class="text-6xl font-bold mb-1">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
-      
-      <div class="flex justify-between text-sm mb-4">
-        <span class="text-red-500">Потрачено ${totalSpent.toLocaleString('ru-RU')} ₽</span>
-        <span class="${remaining < 0 ? 'text-red-500' : 'text-emerald-500'}">Осталось ${remaining.toLocaleString('ru-RU')} ₽</span>
-      </div>
+      <!-- Большая карточка (левая) -->
+      <div class="lg:col-span-8 bg-white dark:bg-zinc-900 rounded-3xl p-8 border ${isOver ? 'border-red-500' : 'border-zinc-200 dark:border-zinc-800'} flex flex-col">
 
-      <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-3 mb-6">
-        <div class="h-3 rounded-full transition-all ${isOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${percent}%"></div>
-      </div>
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-semibold">Общий бюджет на месяц</h3>
+          <button onclick="editMonthlyBudget()" class="px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl text-sm font-medium">Изменить</button>
+        </div>
 
-      ${isOver ? `<p class="text-red-500 text-center font-medium mb-6">⚠️ Бюджет превышен на ${Math.abs(remaining).toLocaleString('ru-RU')} ₽</p>` : ''}
+        <div class="text-6xl font-bold mb-1">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
+        
+        <div class="flex justify-between text-sm mb-4">
+          <span class="text-red-500">Потрачено ${totalSpent.toLocaleString('ru-RU')} ₽</span>
+          <span class="${remaining < 0 ? 'text-red-500' : 'text-emerald-500'}">Осталось ${remaining.toLocaleString('ru-RU')} ₽</span>
+        </div>
 
-      <!-- БЛОК "РАСХОДЫ ЗА МЕСЯЦ" — в стиле "Последние операции" -->
-      <div class="mt-6">
-        <p class="text-xs uppercase tracking-widest text-zinc-500 mb-4">Расходы за месяц</p>
-        <div class="max-h-80 overflow-y-auto pr-2 space-y-3 custom-scroll">`;
+        <div class="bg-zinc-200 dark:bg-zinc-800 rounded-full h-3 mb-6">
+          <div class="h-3 rounded-full transition-all ${isOver ? 'bg-red-500' : 'bg-violet-600'}" style="width: ${percent}%"></div>
+        </div>
+
+        ${isOver ? `<p class="text-red-500 text-center font-medium mb-6">⚠️ Бюджет превышен на ${Math.abs(remaining).toLocaleString('ru-RU')} ₽</p>` : ''}
+
+        <!-- Расходы за месяц -->
+        <div class="flex-1 flex flex-col min-h-0 mt-4">
+          <p class="text-xs uppercase tracking-widest text-zinc-500 mb-3">Расходы за месяц</p>
+          <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scroll bg-zinc-100 dark:bg-zinc-800 rounded-3xl p-4">`;
 
   const monthExpenses = currentUser.data.transactions
     .filter(t => t.amount < 0 && t.date.startsWith(currentMonth))
-    .slice(0, 10); // последние 10 расходов
+    .slice(0, 12);
 
   if (monthExpenses.length === 0) {
-    html += `<p class="text-zinc-500 text-center py-8">Пока нет расходов в этом месяце</p>`;
+    html += `<p class="text-zinc-500 text-center py-12">Пока нет расходов в этом месяце</p>`;
   } else {
     monthExpenses.forEach(t => {
       html += `
-        <div class="flex justify-between items-center bg-zinc-100 dark:bg-zinc-800 rounded-3xl px-6 py-4">
+        <div class="flex justify-between items-center bg-white dark:bg-zinc-900 rounded-3xl px-6 py-4">
           <div>
             <div class="font-medium">${t.category}</div>
             <div class="text-xs text-zinc-500">${t.date}</div>
@@ -65,8 +69,8 @@ async function renderBudgets() {
 
   html += `</div></div></div>`;
 
-  // Карточки категорий
-  html += `<div class="grid grid-cols-2 gap-6">`;
+  // Правая колонка категорий
+  html += `<div class="lg:col-span-4 space-y-6">`;
   const categories = currentUser.data.expenseCategories || [];
 
   categories.forEach(cat => {
@@ -91,7 +95,7 @@ async function renderBudgets() {
       </div>`;
   });
 
-  html += `</div>`;
+  html += `</div></div>`;
 
   document.getElementById('budgetsList').innerHTML = html;
 }
@@ -101,7 +105,6 @@ function getSpentByCategory(category, month) {
     .filter(t => t.category === category && t.amount < 0 && t.date.startsWith(month))
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
 }
-
 
 window.editMonthlyBudget = function() {
   document.getElementById('monthlyBudgetTitle').textContent = `Общий бюджет на ${currentMonth}`;
