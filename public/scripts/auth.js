@@ -1,5 +1,5 @@
 // ====================== AUTH.JS — ПОЛНАЯ ВЕРСИЯ ДЛЯ RENDER ======================
-const API_BASE = 'https://finance-app-2-0.onrender.com/api';   // ←←← ИЗМЕНИ НА СВОЮ ССЫЛКУ С RENDER!
+const API_BASE = 'https://finance-app-2-0.onrender.com/api';   
 
 async function apiRequest(endpoint, method = 'POST', body = null) {
   const res = await fetch(API_BASE + endpoint, {

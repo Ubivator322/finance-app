@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Дашборд — Финансы</title>
+  <title>Мир финансов</title>
 
-  <!-- === ВНЕШНИЕ БИБЛИОТЕКИ (ОБЯЗАТЕЛЬНО!) === -->
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/tailwind-script.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- === НАШИ СКРИПТЫ (в правильном порядке) === -->
+
   <script src="scripts/utils.js"></script>
   <script src="scripts/dashboard/helpers.js"></script>
   <script src="scripts/dashboard/overview.js"></script>
@@ -167,7 +167,7 @@
       <div id="analyticsTab" class="tab-content p-8">
 
         <!-- ПОЛНАЯ АНАЛИТИКА -->
-        <div class="flex items-center justify-between mb-8">
+        <!-- <div class="flex items-center justify-between mb-8">
           <h2 class="text-3xl font-semibold text-zinc-900 dark:text-white">Аналитика</h2>
           <div class="flex bg-white dark:bg-zinc-900 rounded-3xl p-1 border border-zinc-200 dark:border-zinc-800">
             <button data-period="3" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium active">3
@@ -176,7 +176,7 @@
             <button data-period="12" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium">12 месяцев</button>
             <button data-period="0" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium">Всё время</button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Карточки сводки -->
         <div id="analyticsSummary" class="grid grid-cols-4 gap-6 mb-10"></div>
@@ -229,7 +229,7 @@
         <div id="budgetsList" class="grid grid-cols-2 gap-6"></div>
       </div>
 
-      <!-- МОДАЛКИ (начало) -->
+      <!-- МОДАЛКИ  -->
       <!-- Пополнить из баланса -->
       <div id="modalTopUpFromBalance"
         onclick="if(event.target.id === 'modalTopUpFromBalance') this.classList.add('hidden')"
