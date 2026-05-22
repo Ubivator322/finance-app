@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ИСПРАВЛЕНО (кнопка цели + защита) ======================
+// ====================== CORE.JS — ПОЛНАЯ ВЕРСИЯ С ПЕРЕКЛЮЧЕНИЕМ РЕЖИМОВ ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -54,16 +54,57 @@ function updateSidebarAvatar() {
     el.innerHTML = `<span class="text-3xl">${currentUser.avatar || '👤'}</span>`;
   }
   
-  // Меняем фон в зависимости от темы
   el.style.backgroundColor = isDark ? '#27272a' : '#f4f4f5';
+}
+
+// ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПК И МОБИЛЬНЫМ РЕЖИМОМ ==========
+function setLayout(mode) {
+  const body = document.body;
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const toggleBtn = document.getElementById('layoutToggle');
+
+  if (!body) return;
+
+  if (mode === 'mobile') {
+    body.classList.add('mobile-layout');
+    localStorage.setItem('layout', 'mobile');
+    if (toggleBtn) toggleBtn.textContent = '💻';
+    if (sidebar) {
+      sidebar.classList.remove('sidebar-open');
+      sidebar.style.transform = '';
+    }
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('overlay-visible');
+    }
+  } else {
+    body.classList.remove('mobile-layout');
+    localStorage.setItem('layout', 'pc');
+    if (toggleBtn) toggleBtn.textContent = '📱';
+    if (sidebar) {
+      sidebar.classList.remove('-translate-x-full', 'sidebar-open');
+      sidebar.style.transform = '';
+    }
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('overlay-visible');
+    }
+  }
+}
+
+function toggleLayout() {
+  const isMobile = document.body.classList.contains('mobile-layout');
+  setLayout(isMobile ? 'pc' : 'mobile');
 }
 
 // ====================== ЗАПУСК ======================
 document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Загружаем данные пользователя
   const loaded = await loadUserData();
   if (!loaded) return;
 
-  // Тема
+  // 2. Тема
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
 
@@ -74,22 +115,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       themeToggle.textContent = isDark ? '☀️' : '🌙';
-
       updateSidebarAvatar();
     });
   }
 
-  // === КНОПКИ ===
+  // 3. Инициализация режима (ПК / мобильный)
+  const savedLayout = localStorage.getItem('layout');
+  if (savedLayout === 'mobile') {
+    setLayout('mobile');
+  } else {
+    setLayout('pc');
+  }
+
+  // 4. Кнопка переключения режима
+  const layoutToggle = document.getElementById('layoutToggle');
+  if (layoutToggle) {
+    layoutToggle.removeEventListener('click', toggleLayout);
+    layoutToggle.addEventListener('click', toggleLayout);
+  }
+
+  // 5. Кнопки "Расход" / "Доход"
   document.getElementById('addExpenseBtn').addEventListener('click', () => {
     if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
   });
-
   document.getElementById('addIncomeBtn').addEventListener('click', () => {
     if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
   });
 
-  // Таб "Бюджет"
-
+  // 6. Навигация по табам
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
@@ -102,48 +155,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       document.getElementById('pageTitle').textContent = btn.textContent.trim();
 
-      // Вызываем рендер нужной вкладки
       if (btn.dataset.tab === 'analytics') renderAnalytics();
       if (btn.dataset.tab === 'goals') renderGoals();
       if (btn.dataset.tab === 'budget') {
         if (typeof window.renderBudgets === 'function') {
           window.renderBudgets();
         } else {
-          console.error('renderBudgets не найден — проверь подключение budget.js');
+          console.error('renderBudgets не найден');
         }
       }
     });
   });
 
-  // ИСПРАВЛЕНО: кнопка "Добавить новую цель"
+  // 7. Кнопка "Добавить цель"
   const addGoalBtn = document.getElementById('addGoalBtn');
   if (addGoalBtn) {
     addGoalBtn.addEventListener('click', (e) => {
-      e.stopImmediatePropagation();   // защита от ложных срабатываний
+      e.stopImmediatePropagation();
       if (typeof window.showGoalModal === 'function') {
         window.showGoalModal();
       } else {
-        console.error('showGoalModal не найдена — проверь goals.js');
+        console.error('showGoalModal не найдена');
       }
     });
   }
 
+  // 8. Выход
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
-  // Табы
-  document.querySelectorAll('.tab-nav').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
-      btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
-      document.getElementById('pageTitle').textContent = btn.textContent.trim();
-
-      if (btn.dataset.tab === 'analytics') renderAnalytics();
-      if (btn.dataset.tab === 'goals') renderGoals();
-    });
-  });
-
+  // 9. Первичный рендер
   renderOverview();
 });
 
@@ -160,54 +200,6 @@ async function refreshUserData() {
   if (document.getElementById('analyticsTab').classList.contains('active')) renderAnalytics();
   if (document.getElementById('goalsTab').classList.contains('active')) renderGoals();
 }
-
-// ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПК И МОБИЛЬНЫМ РЕЖИМОМ ==========
-function setLayout(mode) {
-  const body = document.body;
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const toggleBtn = document.getElementById('layoutToggle');
-
-  if (!body) return;
-
-  if (mode === 'mobile') {
-    body.classList.add('mobile-layout');
-    localStorage.setItem('layout', 'mobile');
-    if (toggleBtn) toggleBtn.textContent = '💻';
-    if (sidebar) sidebar.classList.remove('sidebar-open');
-    if (overlay) overlay.classList.add('hidden');
-  } else {
-    body.classList.remove('mobile-layout');
-    localStorage.setItem('layout', 'pc');
-    if (toggleBtn) toggleBtn.textContent = '📱';
-    if (sidebar) {
-      sidebar.classList.remove('-translate-x-full', 'sidebar-open');
-    }
-    if (overlay) overlay.classList.add('hidden');
-  }
-}
-
-function toggleLayout() {
-  const isMobile = document.body.classList.contains('mobile-layout');
-  setLayout(isMobile ? 'pc' : 'mobile');
-}
-
-// Инициализация после полной загрузки DOM
-document.addEventListener('DOMContentLoaded', () => {
-  // Загружаем сохранённый режим
-  const savedLayout = localStorage.getItem('layout');
-  if (savedLayout === 'mobile') {
-    setLayout('mobile');
-  } else {
-    setLayout('pc');
-  }
-
-  // Назначаем обработчик кнопке
-  const layoutToggle = document.getElementById('layoutToggle');
-  if (layoutToggle) {
-    layoutToggle.addEventListener('click', toggleLayout);
-  }
-});
 
 window.apiRequest = apiRequest;
 window.refreshUserData = refreshUserData;

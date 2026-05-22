@@ -116,13 +116,19 @@
     /* Сайдбар в мобильном режиме – всегда скрыт, открывается по кнопке */
     body.mobile-layout #sidebar {
       transform: translateX(-100%) !important;
+      position: fixed !important;
     }
 
     body.mobile-layout #sidebar.sidebar-open {
       transform: translateX(0) !important;
     }
 
+    /* Оверлей показываем только когда сайдбар открыт */
     body.mobile-layout #sidebarOverlay {
+      display: none !important;
+    }
+
+    body.mobile-layout #sidebarOverlay.overlay-visible {
       display: block !important;
     }
 
@@ -145,12 +151,10 @@
       display: none !important;
     }
 
-    /* Адаптивные графики */
     body.mobile-layout canvas {
       max-height: 180px !important;
     }
 
-    /* Таблицы – горизонтальная прокрутка */
     body.mobile-layout .overflow-x-auto {
       overflow-x: auto;
     }
@@ -288,7 +292,7 @@
     </div>
   </div>
 
-  <!-- Все модальные окна (без изменений, они уже адаптивны) -->
+  <!-- Все модальные окна (без изменений) -->
   <!-- Пополнить цель из баланса -->
   <div id="modalTopUpFromBalance" onclick="if(event.target.id === 'modalTopUpFromBalance') this.classList.add('hidden')"
     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -481,6 +485,7 @@
       const overlay = document.getElementById('sidebarOverlay');
       if (sidebar && overlay) {
         sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('overlay-visible');
         overlay.classList.add('hidden');
       }
     }
@@ -491,6 +496,7 @@
       if (sidebar && overlay) {
         sidebar.classList.add('sidebar-open');
         overlay.classList.remove('hidden');
+        overlay.classList.add('overlay-visible');
       }
     }
 
@@ -499,7 +505,7 @@
       if (mobileBtn) {
         mobileBtn.addEventListener('click', openMobileSidebar);
       }
-      // Закрывать меню при клике на любой пункт навигации на мобильных
+
       const sidebar = document.getElementById('sidebar');
       if (sidebar) {
         sidebar.querySelectorAll('button, .tab-nav').forEach(el => {
@@ -510,7 +516,7 @@
           });
         });
       }
-      // Установка текущего месяца в пикере бюджета
+
       const monthPicker = document.getElementById('budgetMonthPicker');
       if (monthPicker && !monthPicker.value) {
         monthPicker.value = new Date().toISOString().slice(0,7);
