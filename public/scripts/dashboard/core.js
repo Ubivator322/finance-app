@@ -1,4 +1,3 @@
-// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ С АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -53,38 +52,13 @@ function updateSidebarAvatar() {
   el.style.backgroundColor = isDark ? '#27272a' : '#f4f4f5';
 }
 
-function setLayout(mode) {
-  const body = document.body;
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const toggleBtn = document.getElementById('layoutToggle');
-  if (!body) return;
-  if (mode === 'mobile') {
-    body.classList.add('mobile-layout');
-    localStorage.setItem('layout', 'mobile');
-    if (toggleBtn) toggleBtn.textContent = '💻';
-    if (sidebar) sidebar.classList.remove('sidebar-open');
-    if (overlay) overlay.classList.add('hidden');
-  } else {
-    body.classList.remove('mobile-layout');
-    localStorage.setItem('layout', 'pc');
-    if (toggleBtn) toggleBtn.textContent = '📱';
-    if (sidebar) sidebar.classList.remove('-translate-x-full', 'sidebar-open');
-    if (overlay) overlay.classList.add('hidden');
-  }
-}
-
-function toggleLayout() {
-  const isMobile = document.body.classList.contains('mobile-layout');
-  setLayout(isMobile ? 'pc' : 'mobile');
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await loadUserData();
   if (!loaded) return;
-  // Тема
+
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {
     themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -95,20 +69,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateSidebarAvatar();
     });
   }
-  // Автоопределение мобильного устройства (ширина + userAgent)
-  const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (isMobileDevice) {
-    setLayout('mobile');
-  } else {
-    setLayout('pc');
-  }
-  // Кнопка переключения
-  const layoutToggle = document.getElementById('layoutToggle');
-  if (layoutToggle) layoutToggle.addEventListener('click', toggleLayout);
-  // Кнопки
-  document.getElementById('addExpenseBtn').addEventListener('click', () => { if (typeof window.showExpenseModal === 'function') window.showExpenseModal(); });
-  document.getElementById('addIncomeBtn').addEventListener('click', () => { if (typeof window.showIncomeModal === 'function') window.showIncomeModal(); });
-  // Табы
+
+  document.getElementById('addExpenseBtn').addEventListener('click', () => {
+    if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
+  });
+  document.getElementById('addIncomeBtn').addEventListener('click', () => {
+    if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
+  });
+
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
@@ -120,15 +88,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('pageTitle').textContent = btn.textContent.trim();
       if (btn.dataset.tab === 'analytics') renderAnalytics();
       if (btn.dataset.tab === 'goals') renderGoals();
-      if (btn.dataset.tab === 'budget') { if (typeof window.renderBudgets === 'function') window.renderBudgets(); }
+      if (btn.dataset.tab === 'budget') {
+        if (typeof window.renderBudgets === 'function') window.renderBudgets();
+      }
     });
   });
-  // Цели
+
   const addGoalBtn = document.getElementById('addGoalBtn');
-  if (addGoalBtn) addGoalBtn.addEventListener('click', (e) => { e.stopImmediatePropagation(); if (typeof window.showGoalModal === 'function') window.showGoalModal(); });
-  // Выход
+  if (addGoalBtn) addGoalBtn.addEventListener('click', (e) => {
+    e.stopImmediatePropagation();
+    if (typeof window.showGoalModal === 'function') window.showGoalModal();
+  });
+
   document.getElementById('logoutBtn').addEventListener('click', logout);
-  // Рендер
   renderOverview();
 });
 

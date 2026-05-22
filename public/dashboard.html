@@ -2,7 +2,7 @@
 <html lang="ru" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Мир финансов</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/tailwind-script.js"></script>
@@ -19,160 +19,23 @@
   <script src="scripts/dashboard/core.js"></script>
   <script src="scripts/dashboard/budget.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    .toast {
-      animation: toastIn 0.4s ease forwards;
-    }
+    .toast { animation: toastIn 0.4s ease forwards; }
     @keyframes toastIn {
       from { transform: translateY(30px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-    canvas { max-width: 100%; height: auto !important; }
+    canvas { max-width: 100%; height: auto !important; max-height: 260px; }
+    main::-webkit-scrollbar, #transactionsList::-webkit-scrollbar { display: none; }
     .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-    /* ========== МОБИЛЬНАЯ ВЕРСИЯ (ПОЛНОСТЬЮ ПЕРЕРАБОТАНА) ========== */
-    body.mobile-layout {
-      font-size: 18px;
-    }
-    /* Все сетки в одну колонку */
-    body.mobile-layout .grid-cols-1,
-    body.mobile-layout .grid-cols-2,
-    body.mobile-layout .grid-cols-3,
-    body.mobile-layout .grid-cols-4,
-    body.mobile-layout .grid-cols-5,
-    body.mobile-layout .sm\:grid-cols-2,
-    body.mobile-layout .md\:grid-cols-3,
-    body.mobile-layout .lg\:grid-cols-4,
-    body.mobile-layout .lg\:grid-cols-5 {
-      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-    }
-    body.mobile-layout .flex-col.sm\:flex-row {
-      flex-direction: column !important;
-    }
-    /* Отступы и паддинги */
-    body.mobile-layout .p-6, body.mobile-layout .p-5, body.mobile-layout .md\:p-6, body.mobile-layout .md\:p-8 {
-      padding: 1.5rem !important;
-    }
-    body.mobile-layout .p-3 { padding: 1rem !important; }
-    body.mobile-layout .px-6, body.mobile-layout .px-5 { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
-    body.mobile-layout .py-4 { padding-top: 0.8rem !important; padding-bottom: 0.8rem !important; }
-    /* Шрифты крупные */
-    body.mobile-layout .text-4xl { font-size: 2.4rem !important; }
-    body.mobile-layout .text-3xl { font-size: 2rem !important; }
-    body.mobile-layout .text-2xl { font-size: 1.8rem !important; }
-    body.mobile-layout .text-xl { font-size: 1.5rem !important; }
-    body.mobile-layout .text-lg { font-size: 1.3rem !important; }
-    body.mobile-layout .text-base { font-size: 1.1rem !important; }
-    body.mobile-layout .text-sm { font-size: 1rem !important; }
-    body.mobile-layout .text-xs { font-size: 0.9rem !important; }
-    /* Заголовки */
-    body.mobile-layout h2, body.mobile-layout h3 { font-size: 1.6rem !important; }
-    body.mobile-layout #pageTitle { font-size: 1.6rem !important; }
-    /* Отступы */
-    body.mobile-layout .gap-6 { gap: 1.2rem !important; }
-    body.mobile-layout .gap-4 { gap: 1rem !important; }
-    body.mobile-layout .gap-3 { gap: 0.8rem !important; }
-    body.mobile-layout .mb-8 { margin-bottom: 1.5rem !important; }
-    body.mobile-layout .mb-6 { margin-bottom: 1.2rem !important; }
-    body.mobile-layout .mb-4 { margin-bottom: 1rem !important; }
-    body.mobile-layout .mt-2 { margin-top: 0.8rem !important; }
-    /* Скругления */
-    body.mobile-layout .rounded-3xl { border-radius: 1.5rem !important; }
-    body.mobile-layout .rounded-2xl { border-radius: 1.2rem !important; }
-    /* Кнопки */
-    body.mobile-layout button, body.mobile-layout .tab-nav { min-height: 52px !important; }
-    body.mobile-layout .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-    body.mobile-layout #addExpenseBtn, body.mobile-layout #addIncomeBtn {
-      padding: 1rem !important;
-      font-size: 1.3rem !important;
-      border-radius: 2rem !important;
-    }
-    body.mobile-layout #addGoalBtn {
-      padding: 1rem !important;
-      font-size: 1.3rem !important;
-    }
-    /* Карточки баланса */
-    body.mobile-layout .bg-white.dark\:bg-zinc-900.rounded-3xl.p-5 { padding: 1.2rem !important; }
-    body.mobile-layout #totalBalance, body.mobile-layout #totalExpense, body.mobile-layout #totalIncome {
-      font-size: 2.2rem !important;
-    }
-    /* Список операций */
-    body.mobile-layout #transactionsList > div {
-      padding: 0.8rem 1rem !important;
-      margin-bottom: 0.8rem !important;
-    }
-    body.mobile-layout .transactions-list-item .font-medium { font-size: 1.1rem !important; }
-    body.mobile-layout .transactions-list-item .font-bold { font-size: 1.1rem !important; }
-    /* Сайдбар (шторка) */
-    body.mobile-layout #sidebar {
-      transform: translateX(-100%) !important;
-      position: fixed !important;
-      width: 280px !important;
-      max-width: 80% !important;
-      transition: transform 0.3s ease !important;
-      z-index: 1000 !important;
-    }
-    body.mobile-layout #sidebar.sidebar-open {
-      transform: translateX(0) !important;
-    }
-    body.mobile-layout #sidebarOverlay {
-      position: fixed !important;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 999 !important;
-      display: none !important;
-    }
-    body.mobile-layout #sidebarOverlay.overlay-visible {
-      display: block !important;
-    }
-    /* В ПК-режиме сайдбар видим всегда */
-    body:not(.mobile-layout) #sidebar {
-      transform: translateX(0) !important;
-      position: relative !important;
-    }
-    body:not(.mobile-layout) #sidebarOverlay {
-      display: none !important;
-    }
-    /* Кнопка гамбургера видна только на мобильных */
-    body.mobile-layout #mobileMenuBtn {
-      display: flex !important;
-    }
-    body:not(.mobile-layout) #mobileMenuBtn {
-      display: none !important;
-    }
-    /* Графики */
-    body.mobile-layout canvas {
-      max-height: 220px !important;
-      min-height: 180px !important;
-    }
-    /* Таблицы */
-    body.mobile-layout table { font-size: 1rem !important; }
-    body.mobile-layout th, body.mobile-layout td { padding: 0.6rem !important; }
-    /* Кнопки в шапке */
-    body.mobile-layout #layoutToggle, body.mobile-layout #themeToggle {
-      width: 3rem !important;
-      height: 3rem !important;
-      font-size: 1.5rem !important;
-    }
-    body.mobile-layout #mobileMenuBtn {
-      width: 3rem !important;
-      height: 3rem !important;
-      font-size: 1.5rem !important;
-    }
+    button, .tab-nav, .clickable { cursor: pointer; touch-action: manipulation; }
   </style>
 </head>
 <body class="bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen">
-  <div class="max-w-[1920px] mx-auto flex h-screen w-full border-x border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden relative">
+  <div class="max-w-[1920px] mx-auto flex h-screen w-full border-x border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
     <!-- SIDEBAR -->
     <aside id="sidebar" class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col fixed inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform z-50 shadow-xl md:shadow-none">
       <div onclick="showProfileModal()" class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
@@ -187,6 +50,7 @@
       </nav>
       <div class="p-4 border-t border-zinc-200 dark:border-zinc-800"><button id="logoutBtn" class="w-full py-3 text-red-500 hover:text-red-600 font-medium">Выйти</button></div>
     </aside>
+    <!-- Оверлей для мобильного меню -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity" onclick="closeMobileSidebar()"></div>
     <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-w-0">
@@ -195,10 +59,7 @@
           <button id="mobileMenuBtn" class="md:hidden text-3xl px-2 w-12 h-12 flex items-center justify-center rounded-full active:bg-zinc-200 dark:active:bg-zinc-800"><i class="fas fa-bars"></i></button>
           <h2 id="pageTitle" class="text-xl md:text-2xl font-semibold">Обзор</h2>
         </div>
-        <div class="flex items-center gap-2">
-          <button id="layoutToggle" class="text-2xl w-12 h-12 flex items-center justify-center rounded-full" title="Переключить вид (ПК / Телефон)">📱</button>
-          <button id="themeToggle" class="text-3xl w-12 h-12 flex items-center justify-center rounded-full">🌙</button>
-        </div>
+        <button id="themeToggle" class="text-3xl w-12 h-12 flex items-center justify-center rounded-full">🌙</button>
       </header>
       <main class="flex-1 overflow-auto p-3 md:p-6">
         <!-- ОБЗОР -->
@@ -225,7 +86,7 @@
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div class="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Топ-7 категорий расходов</h3><canvas id="topExpenseChart" height="220"></canvas></div>
-            <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Разбивка по месяцам</h3><div class="overflow-x-auto max-h-[340px]"><table id="monthlyTable" class="w-full text-sm min-w-[300px]"><tr></div></div>
+            <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Разбивка по месяцам</h3><div class="overflow-x-auto max-h-[340px]"><table id="monthlyTable" class="w-full text-sm min-w-[300px]"></table></div></div>
           </div>
         </div>
         <!-- ЦЕЛИ -->
@@ -245,7 +106,7 @@
       </main>
     </div>
   </div>
-  <!-- Модальные окна (оставляем как есть, они уже адаптивны) -->
+  <!-- Все модальные окна (скопируйте их из вашего текущего файла, они без изменений) -->
   <div id="modalTopUpFromBalance" onclick="if(event.target.id === 'modalTopUpFromBalance') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800"><div class="p-6 md:p-8"><h3 class="text-xl md:text-2xl font-semibold mb-6 text-center text-zinc-900 dark:text-white">Пополнить цель</h3><input id="topUpAmount" type="number" placeholder="Сумма" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-2xl px-6 py-5 rounded-3xl mb-6 outline-none focus:ring-2 focus:ring-violet-500"><p id="topUpGoalName" class="text-center text-zinc-500 dark:text-zinc-400 text-sm mb-2"></p></div><div class="flex gap-3 px-6 pb-6 md:px-8 md:pb-8"><button onclick="closeTopUpModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button onclick="confirmTopUpFromBalance()" class="flex-1 py-4 bg-violet-600 text-white rounded-3xl">Пополнить</button></div></div></div>
   <div id="modalSpendFromGoal" onclick="if(event.target.id === 'modalSpendFromGoal') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800"><div class="p-6 md:p-8"><h3 class="text-xl md:text-2xl font-semibold mb-6 text-center text-zinc-900 dark:text-white">Списать с цели на баланс</h3><input id="spendAmount" type="number" placeholder="Сумма" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-2xl px-6 py-5 rounded-3xl mb-6 outline-none focus:ring-2 focus:ring-red-500"><p id="spendGoalName" class="text-center text-zinc-500 dark:text-zinc-400 text-sm mb-2"></p></div><div class="flex gap-3 px-6 pb-6 md:px-8 md:pb-8"><button onclick="closeSpendModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button onclick="confirmSpendFromGoal()" class="flex-1 py-4 bg-red-600 text-white rounded-3xl">Списать на баланс</button></div></div></div>
   <div id="modalProfile" onclick="if(event.target.id === 'modalProfile') closeProfileModal()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-md mx-auto rounded-3xl overflow-hidden"><div class="pt-8 pb-6 text-center"><div onclick="openAvatarModal()" class="w-24 h-24 mx-auto bg-zinc-200 dark:bg-zinc-800 rounded-3xl flex items-center justify-center text-6xl cursor-pointer hover:scale-105 transition-transform border-4 border-zinc-300 dark:border-zinc-700"><span id="profileAvatar">👤</span></div><div class="flex items-center justify-center gap-3 mt-5"><h2 id="profileName" class="text-2xl md:text-3xl font-semibold text-zinc-900 dark:text-white"></h2><button onclick="openEditNameModal()" class="text-violet-500 hover:text-violet-600 text-2xl">✏️</button></div><p id="profileEmail" class="text-zinc-500 dark:text-zinc-400 text-sm mt-1"></p></div><div class="px-6 pb-6 space-y-3"><button onclick="clearExpenses()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить все расходы</button><button onclick="clearIncomes()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить все доходы</button><button onclick="clearAll()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить всю историю</button><button onclick="exportExcel()" class="w-full h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">📥 Экспорт в Excel</button></div></div></div>
@@ -284,7 +145,7 @@
       if (sidebar) {
         sidebar.querySelectorAll('button, .tab-nav').forEach(el => {
           el.addEventListener('click', () => {
-            if (document.body.classList.contains('mobile-layout')) closeMobileSidebar();
+            if (window.innerWidth < 768) closeMobileSidebar();
           });
         });
       }
