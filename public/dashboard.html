@@ -73,7 +73,7 @@
       touch-action: manipulation;
     }
 
-    /* ========== ПРИНУДИТЕЛЬНЫЙ МОБИЛЬНЫЙ РЕЖИМ ========== */
+       /* ========== ПРИНУДИТЕЛЬНЫЙ МОБИЛЬНЫЙ РЕЖИМ ========== */
     body.mobile-layout .grid-cols-1,
     body.mobile-layout .grid-cols-2,
     body.mobile-layout .grid-cols-3,
@@ -90,33 +90,78 @@
       flex-direction: column !important;
     }
 
+    /* Увеличиваем отступы для мобильной версии */
     body.mobile-layout .p-6,
     body.mobile-layout .p-5,
     body.mobile-layout .md\:p-6,
     body.mobile-layout .md\:p-8 {
+      padding: 1.5rem !important;
+    }
+
+    body.mobile-layout .p-3 {
       padding: 1rem !important;
     }
 
+    /* Крупные шрифты */
     body.mobile-layout .text-4xl {
+      font-size: 2.2rem !important;
+    }
+    body.mobile-layout .text-3xl {
       font-size: 1.8rem !important;
     }
-
-    body.mobile-layout .text-3xl {
+    body.mobile-layout .text-2xl {
       font-size: 1.6rem !important;
     }
+    body.mobile-layout .text-xl {
+      font-size: 1.4rem !important;
+    }
+    body.mobile-layout .text-lg {
+      font-size: 1.2rem !important;
+    }
+    body.mobile-layout .text-base {
+      font-size: 1rem !important;
+    }
+    body.mobile-layout .text-sm {
+      font-size: 0.9rem !important;
+    }
 
+    /* Отступы между элементами */
     body.mobile-layout .gap-6 {
+      gap: 1rem !important;
+    }
+    body.mobile-layout .gap-4 {
       gap: 0.75rem !important;
+    }
+    body.mobile-layout .mb-8 {
+      margin-bottom: 1.5rem !important;
+    }
+    body.mobile-layout .mb-6 {
+      margin-bottom: 1.25rem !important;
+    }
+    body.mobile-layout .mb-4 {
+      margin-bottom: 1rem !important;
     }
 
     body.mobile-layout .rounded-3xl {
-      border-radius: 1.2rem !important;
+      border-radius: 1.5rem !important;
+    }
+
+    /* Кнопки крупнее */
+    body.mobile-layout button,
+    body.mobile-layout .tab-nav {
+      min-height: 48px !important;
+    }
+    body.mobile-layout .py-4 {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
     }
 
     /* Сайдбар в мобильном режиме – всегда скрыт, открывается по кнопке */
     body.mobile-layout #sidebar {
       transform: translateX(-100%) !important;
       position: fixed !important;
+      width: 85% !important;
+      max-width: 300px !important;
     }
 
     body.mobile-layout #sidebar.sidebar-open {
@@ -127,7 +172,6 @@
     body.mobile-layout #sidebarOverlay {
       display: none !important;
     }
-
     body.mobile-layout #sidebarOverlay.overlay-visible {
       display: block !important;
     }
@@ -137,7 +181,6 @@
       transform: translateX(0) !important;
       position: relative !important;
     }
-
     body:not(.mobile-layout) #sidebarOverlay {
       display: none !important;
     }
@@ -146,17 +189,24 @@
     body.mobile-layout #mobileMenuBtn {
       display: flex !important;
     }
-
     body:not(.mobile-layout) #mobileMenuBtn {
       display: none !important;
     }
 
+    /* Графики чуть выше для читаемости */
     body.mobile-layout canvas {
-      max-height: 180px !important;
+      max-height: 220px !important;
     }
 
+    /* Таблицы – горизонтальная прокрутка */
     body.mobile-layout .overflow-x-auto {
       overflow-x: auto;
+    }
+
+    /* Карточки целей и бюджета – больше отступов внутри */
+    body.mobile-layout #goalsList > div,
+    body.mobile-layout #budgetsList > div {
+      padding: 1.25rem !important;
     }
   </style>
 </head>
