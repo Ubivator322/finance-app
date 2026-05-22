@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Мир финансов</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/tailwind-script.js"></script>
@@ -73,61 +73,45 @@
     class="max-w-[1920px] mx-auto flex h-screen w-full border-x border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
 
     <!-- SIDEBAR -->
-    <aside class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col">
-
+    <aside id="sidebar"
+      class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col md:static fixed inset-y-0 -translate-x-full md:translate-x-0 transition-transform z-50">
       <!-- ПРОФИЛЬ -->
-      <div onclick="showProfileModal()"
-        class="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all">
-        <div id="sidebarAvatar"
-          class="w-10 h-10 bg-zinc-800 rounded-2xl flex items-center justify-center text-3xl border border-zinc-700 overflow-hidden">
-          👤</div>
-        <div class="flex-1 min-w-0">
-          <h1 id="userName" class="font-bold text-2xl truncate"></h1>
-          <p class="text-sm text-zinc-500 dark:text-zinc-400">Открыть профиль</p>
+      <div onclick="showProfileModal()" class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
+        <div id="sidebarAvatar" class="w-11 h-11 bg-zinc-700 rounded-2xl flex items-center justify-center text-3xl">👤</div>
+        <div class="flex-1">
+          <h1 id="userName" class="font-bold text-xl"></h1>
+          <p class="text-sm text-zinc-500">Профиль</p>
         </div>
-        <i class="fas fa-chevron-right text-zinc-400"></i>
       </div>
 
       <!-- НАВИГАЦИЯ -->
-      <nav class="flex-1 p-6 space-y-1">
-        <button data-tab="overview"
-          class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium active bg-zinc-100 dark:bg-zinc-800">
-          <i class="fas fa-home"></i> Обзор
-        </button>
-        <button data-tab="analytics"
-          class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium">
-          <i class="fas fa-chart-pie"></i> Аналитика
-        </button>
-        <button data-tab="goals"
-          class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium">
-          <i class="fas fa-bullseye"></i> Цели
-        </button>
-        <button data-tab="budget"
-          class="tab-nav w-full text-left px-6 py-4 rounded-3xl flex items-center gap-3 font-medium">
-          <i class="fas fa-wallet"></i> Бюджет
-        </button>
+      <nav class="flex-1 p-4 space-y-1">
+        <button data-tab="overview" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium active">Обзор</button>
+        <button data-tab="analytics" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Аналитика</button>
+        <button data-tab="goals" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Цели</button>
+        <button data-tab="budget" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Бюджет</button>
       </nav>
 
       <!-- ВЫХОД -->
-      <div class="p-6 border-t border-zinc-200 dark:border-zinc-800">
-        <button id="logoutBtn"
-          class="w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-600 py-3 font-medium">
-          <i class="fas fa-sign-out-alt"></i> Выйти
-        </button>
+      <div class="p-4 border-t border-zinc-200 dark:border-zinc-800">
+        <button id="logoutBtn" class="w-full py-3 text-red-500 hover:text-red-600 font-medium">Выйти</button>
       </div>
     </aside>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-auto">
-      <header
-        class="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-8 py-5 flex items-center justify-between sticky top-0 z-10">
-        <h2 id="pageTitle" class="text-3xl font-semibold">Обзор расходов</h2>
-        <button id="themeToggle"
-          class="w-11 h-11 flex items-center justify-center text-2xl rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800">🌙</button>
+    <div class="flex-1 flex flex-col min-w-0">
+      <header class="bg-white dark:bg-zinc-900 border-b px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <div class="flex items-center gap-4">
+          <button id="mobileMenuBtn" class="md:hidden text-3xl px-2">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 id="pageTitle" class="text-2xl font-semibold">Обзор</h2>
+        </div>
+        <button id="themeToggle" class="text-3xl">🌙</button>
       </header>
 
       <!-- OVERVIEW TAB -->
-      <div id="overviewTab" class="tab-content active p-8">
+      <main class="flex-1 overflow-auto p-4 md:p-6">
         <div class="grid grid-cols-3 gap-6 mb-8">
           <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200 dark:border-zinc-800">
             <p class="text-sm text-zinc-500">Баланс</p>
@@ -166,17 +150,7 @@
       <!-- ANALYTICS TAB (начало) -->
       <div id="analyticsTab" class="tab-content p-8">
 
-        <!-- ПОЛНАЯ АНАЛИТИКА -->
-        <!-- <div class="flex items-center justify-between mb-8">
-          <h2 class="text-3xl font-semibold text-zinc-900 dark:text-white">Аналитика</h2>
-          <div class="flex bg-white dark:bg-zinc-900 rounded-3xl p-1 border border-zinc-200 dark:border-zinc-800">
-            <button data-period="3" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium active">3
-              месяца</button>
-            <button data-period="6" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium">6 месяцев</button>
-            <button data-period="12" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium">12 месяцев</button>
-            <button data-period="0" class="period-btn px-6 py-2.5 rounded-3xl text-sm font-medium">Всё время</button>
-          </div>
-        </div> -->
+
 
         <!-- Карточки сводки -->
         <div id="analyticsSummary" class="grid grid-cols-4 gap-6 mb-10"></div>
@@ -437,54 +411,54 @@
     </main>
   </div>
 
-  <div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()" 
-     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
-  <div onclick="event.stopImmediatePropagation()" 
-       class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
-    <h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3>
-    <input id="budgetLimitInput" type="number" 
-           class="w-full bg-zinc-100 dark:bg-zinc-800 text-3xl px-6 py-5 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
-    <div class="flex gap-3 mt-8">
-      <button onclick="closeBudgetModal()" 
-              class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
-      <button onclick="saveBudgetLimit()" 
-              class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+  <div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()"
+    class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
+    <div onclick="event.stopImmediatePropagation()"
+      class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
+      <h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3>
+      <input id="budgetLimitInput" type="number"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-3xl px-6 py-5 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
+      <div class="flex gap-3 mt-8">
+        <button onclick="closeBudgetModal()"
+          class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
+        <button onclick="saveBudgetLimit()"
+          class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+      </div>
     </div>
   </div>
-</div>
-<!-- МОДАЛКА ДЛЯ ОБЩЕГО БЮДЖЕТА -->
-<div id="modalMonthlyBudget" onclick="if(event.target.id === 'modalMonthlyBudget') closeMonthlyBudgetModal()" 
-     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
-  <div onclick="event.stopImmediatePropagation()" 
-       class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
-    <h3 class="text-2xl font-semibold mb-6 text-center" id="monthlyBudgetTitle">Общий бюджет на месяц</h3>
-    <input id="monthlyBudgetInput" type="number" 
-           class="w-full bg-zinc-100 dark:bg-zinc-800 text-4xl px-6 py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
-    <div class="flex gap-3 mt-8">
-      <button onclick="closeMonthlyBudgetModal()" 
-              class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
-      <button onclick="saveMonthlyBudget()" 
-              class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+  <!-- МОДАЛКА ДЛЯ ОБЩЕГО БЮДЖЕТА -->
+  <div id="modalMonthlyBudget" onclick="if(event.target.id === 'modalMonthlyBudget') closeMonthlyBudgetModal()"
+    class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
+    <div onclick="event.stopImmediatePropagation()"
+      class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
+      <h3 class="text-2xl font-semibold mb-6 text-center" id="monthlyBudgetTitle">Общий бюджет на месяц</h3>
+      <input id="monthlyBudgetInput" type="number"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-4xl px-6 py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
+      <div class="flex gap-3 mt-8">
+        <button onclick="closeMonthlyBudgetModal()"
+          class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
+        <button onclick="saveMonthlyBudget()"
+          class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- МОДАЛКА ДЛЯ КАТЕГОРИИ (уже была, но обновлённая) -->
-<div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()" 
-     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
-  <div onclick="event.stopImmediatePropagation()" 
-       class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
-    <h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3>
-    <input id="budgetLimitInput" type="number" 
-           class="w-full bg-zinc-100 dark:bg-zinc-800 text-4xl px-6 py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
-    <div class="flex gap-3 mt-8">
-      <button onclick="closeBudgetModal()" 
-              class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
-      <button onclick="saveBudgetLimit()" 
-              class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+  <!-- МОДАЛКА ДЛЯ КАТЕГОРИИ (уже была, но обновлённая) -->
+  <div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()"
+    class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70]">
+    <div onclick="event.stopImmediatePropagation()"
+      class="bg-white dark:bg-zinc-900 w-full max-w-md mx-4 rounded-3xl p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800">
+      <h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3>
+      <input id="budgetLimitInput" type="number"
+        class="w-full bg-zinc-100 dark:bg-zinc-800 text-4xl px-6 py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500">
+      <div class="flex gap-3 mt-8">
+        <button onclick="closeBudgetModal()"
+          class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button>
+        <button onclick="saveBudgetLimit()"
+          class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button>
+      </div>
     </div>
   </div>
-</div>
 
 
 
