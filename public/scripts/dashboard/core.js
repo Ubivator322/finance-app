@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ПОЛНАЯ ВЕРСИЯ С ПЕРЕКЛЮЧЕНИЕМ РЕЖИМОВ И АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА ======================
+// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ С АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА И КРУПНЫМ МОБИЛЬНЫМ РЕЖИМОМ ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -100,11 +100,10 @@ function toggleLayout() {
 
 // ====================== ЗАПУСК ======================
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Загружаем данные пользователя
   const loaded = await loadUserData();
   if (!loaded) return;
 
-  // 2. Тема
+  // Тема
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
 
@@ -119,33 +118,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 3. Инициализация режима (ПК / мобильный) – автоматически + ручное сохранение
-  const isMobileByWidth = window.innerWidth <= 768;
-  const savedLayout = localStorage.getItem('layout');
-
-  if (isMobileByWidth) {
-    // На телефоне всегда включаем мобильный режим, но сохраняем выбор пользователя, если он переключил вручную
-    if (savedLayout === 'pc') {
-      setLayout('pc'); // если пользователь явно выбрал ПК на телефоне, уважаем его выбор
-    } else {
-      setLayout('mobile');
-    }
+  // === АВТООПРЕДЕЛЕНИЕ ТЕЛЕФОНА: ширина <= 768px ===
+  if (window.innerWidth <= 768) {
+    setLayout('mobile');
   } else {
-    if (savedLayout === 'mobile') {
-      setLayout('mobile');
-    } else {
-      setLayout('pc');
-    }
+    setLayout('pc');
   }
 
-  // 4. Кнопка переключения режима
+  // Кнопка переключения режима
   const layoutToggle = document.getElementById('layoutToggle');
   if (layoutToggle) {
-    layoutToggle.removeEventListener('click', toggleLayout);
     layoutToggle.addEventListener('click', toggleLayout);
   }
 
-  // 5. Кнопки "Расход" / "Доход"
+  // Кнопки "Расход" / "Доход"
   document.getElementById('addExpenseBtn').addEventListener('click', () => {
     if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
   });
@@ -153,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
   });
 
-  // 6. Навигация по табам
+  // Навигация по табам
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
@@ -169,32 +155,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (btn.dataset.tab === 'analytics') renderAnalytics();
       if (btn.dataset.tab === 'goals') renderGoals();
       if (btn.dataset.tab === 'budget') {
-        if (typeof window.renderBudgets === 'function') {
-          window.renderBudgets();
-        } else {
-          console.error('renderBudgets не найден');
-        }
+        if (typeof window.renderBudgets === 'function') window.renderBudgets();
       }
     });
   });
 
-  // 7. Кнопка "Добавить цель"
+  // Кнопка "Добавить цель"
   const addGoalBtn = document.getElementById('addGoalBtn');
   if (addGoalBtn) {
     addGoalBtn.addEventListener('click', (e) => {
       e.stopImmediatePropagation();
-      if (typeof window.showGoalModal === 'function') {
-        window.showGoalModal();
-      } else {
-        console.error('showGoalModal не найдена');
-      }
+      if (typeof window.showGoalModal === 'function') window.showGoalModal();
     });
   }
 
-  // 8. Выход
+  // Выход
   document.getElementById('logoutBtn').addEventListener('click', logout);
 
-  // 9. Первичный рендер
+  // Первичный рендер
   renderOverview();
 });
 

@@ -296,6 +296,102 @@
       height: 3rem !important;
       font-size: 1.6rem !important;
     }
+    /* КРУПНЫЙ МОБИЛЬНЫЙ РЕЖИМ – ДОПОЛНИТЕЛЬНЫЕ УВЕЛИЧЕНИЯ */
+body.mobile-layout {
+  font-size: 18px !important;
+}
+
+/* Основные карточки баланса */
+body.mobile-layout .grid-cols-1.sm\:grid-cols-2.md\:grid-cols-3 > div {
+  padding: 1.5rem !important;
+}
+
+body.mobile-layout #totalBalance,
+body.mobile-layout #totalExpense,
+body.mobile-layout #totalIncome {
+  font-size: 2.4rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Кнопки действий */
+body.mobile-layout #addExpenseBtn,
+body.mobile-layout #addIncomeBtn {
+  padding: 1.4rem !important;
+  font-size: 1.4rem !important;
+  border-radius: 3rem !important;
+}
+
+/* Список операций */
+body.mobile-layout #transactionsList > div {
+  padding: 1.2rem 1.5rem !important;
+  margin-bottom: 0.8rem !important;
+  border-radius: 2rem !important;
+}
+
+body.mobile-layout .transactions-list-item .font-medium {
+  font-size: 1.2rem !important;
+}
+
+body.mobile-layout .transactions-list-item .text-xs {
+  font-size: 0.9rem !important;
+}
+
+body.mobile-layout .transactions-list-item .font-bold {
+  font-size: 1.2rem !important;
+}
+
+/* Заголовки */
+body.mobile-layout h2, 
+body.mobile-layout h3 {
+  font-size: 1.6rem !important;
+}
+
+body.mobile-layout #pageTitle {
+  font-size: 1.6rem !important;
+}
+
+/* Графики */
+body.mobile-layout canvas {
+  max-height: 250px !important;
+}
+
+/* Сайдбар – ширина и шрифты */
+body.mobile-layout #sidebar {
+  width: 85% !important;
+  max-width: 320px !important;
+}
+
+body.mobile-layout .tab-nav {
+  font-size: 1.2rem !important;
+  padding: 1rem 1rem !important;
+}
+
+/* Кнопки переключения режима и темы */
+body.mobile-layout #layoutToggle,
+body.mobile-layout #themeToggle {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  font-size: 1.8rem !important;
+}
+
+/* Модальные окна */
+body.mobile-layout .modal-content input,
+body.mobile-layout .modal-content select,
+body.mobile-layout .modal-content textarea {
+  font-size: 1.3rem !important;
+  padding: 1rem 1rem !important;
+}
+
+/* Карточки целей и бюджета */
+body.mobile-layout #goalsList > div,
+body.mobile-layout #budgetsList > div {
+  padding: 1.5rem !important;
+}
+
+body.mobile-layout #goalsList .font-semibold,
+body.mobile-layout #budgetsList .font-semibold {
+  font-size: 1.3rem !important;
+}
   </style>
 </head>
 
