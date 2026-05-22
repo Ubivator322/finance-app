@@ -161,5 +161,51 @@ async function refreshUserData() {
   if (document.getElementById('goalsTab').classList.contains('active')) renderGoals();
 }
 
+// ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПК И МОБИЛЬНЫМ РЕЖИМОМ ==========
+function setLayout(mode) {
+  const body = document.body;
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const toggleBtn = document.getElementById('layoutToggle');
+
+  if (mode === 'mobile') {
+    body.classList.add('mobile-layout');
+    localStorage.setItem('layout', 'mobile');
+    if (toggleBtn) toggleBtn.textContent = '💻';
+    // В мобильном режиме сайдбар скрыт, убираем класс open
+    if (sidebar) sidebar.classList.remove('sidebar-open');
+    if (overlay) overlay.classList.add('hidden');
+  } else {
+    body.classList.remove('mobile-layout');
+    localStorage.setItem('layout', 'pc');
+    if (toggleBtn) toggleBtn.textContent = '📱';
+    // В ПК-режиме сайдбар виден всегда, убираем классы трансформации
+    if (sidebar) {
+      sidebar.classList.remove('-translate-x-full', 'sidebar-open');
+      // Принудительно показываем сайдбар (класс из стилей уже есть)
+    }
+    if (overlay) overlay.classList.add('hidden');
+  }
+}
+
+function toggleLayout() {
+  const isMobile = document.body.classList.contains('mobile-layout');
+  setLayout(isMobile ? 'pc' : 'mobile');
+}
+
+// Загружаем сохранённый режим
+const savedLayout = localStorage.getItem('layout');
+if (savedLayout === 'mobile') {
+  setLayout('mobile');
+} else {
+  setLayout('pc');
+}
+
+// Обработчик кнопки переключения (добавляем после загрузки DOM)
+document.addEventListener('DOMContentLoaded', () => {
+  const layoutToggle = document.getElementById('layoutToggle');
+  if (layoutToggle) layoutToggle.addEventListener('click', toggleLayout);
+});
+
 window.apiRequest = apiRequest;
 window.refreshUserData = refreshUserData;

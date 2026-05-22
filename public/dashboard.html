@@ -72,6 +72,88 @@
       cursor: pointer;
       touch-action: manipulation;
     }
+
+    /* ========== ПРИНУДИТЕЛЬНЫЙ МОБИЛЬНЫЙ РЕЖИМ ========== */
+    body.mobile-layout .grid-cols-1,
+    body.mobile-layout .grid-cols-2,
+    body.mobile-layout .grid-cols-3,
+    body.mobile-layout .grid-cols-4,
+    body.mobile-layout .grid-cols-5,
+    body.mobile-layout .sm\:grid-cols-2,
+    body.mobile-layout .md\:grid-cols-3,
+    body.mobile-layout .lg\:grid-cols-4,
+    body.mobile-layout .lg\:grid-cols-5 {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+
+    body.mobile-layout .flex-col.sm\:flex-row {
+      flex-direction: column !important;
+    }
+
+    body.mobile-layout .p-6,
+    body.mobile-layout .p-5,
+    body.mobile-layout .md\:p-6,
+    body.mobile-layout .md\:p-8 {
+      padding: 1rem !important;
+    }
+
+    body.mobile-layout .text-4xl {
+      font-size: 1.8rem !important;
+    }
+
+    body.mobile-layout .text-3xl {
+      font-size: 1.6rem !important;
+    }
+
+    body.mobile-layout .gap-6 {
+      gap: 0.75rem !important;
+    }
+
+    body.mobile-layout .rounded-3xl {
+      border-radius: 1.2rem !important;
+    }
+
+    /* Сайдбар в мобильном режиме – всегда скрыт, открывается по кнопке */
+    body.mobile-layout #sidebar {
+      transform: translateX(-100%) !important;
+    }
+
+    body.mobile-layout #sidebar.sidebar-open {
+      transform: translateX(0) !important;
+    }
+
+    body.mobile-layout #sidebarOverlay {
+      display: block !important;
+    }
+
+    /* В ПК-режиме сайдбар всегда виден, оверлей скрыт */
+    body:not(.mobile-layout) #sidebar {
+      transform: translateX(0) !important;
+      position: relative !important;
+    }
+
+    body:not(.mobile-layout) #sidebarOverlay {
+      display: none !important;
+    }
+
+    /* Кнопка мобильного меню видна только в мобильном режиме */
+    body.mobile-layout #mobileMenuBtn {
+      display: flex !important;
+    }
+
+    body:not(.mobile-layout) #mobileMenuBtn {
+      display: none !important;
+    }
+
+    /* Адаптивные графики */
+    body.mobile-layout canvas {
+      max-height: 180px !important;
+    }
+
+    /* Таблицы – горизонтальная прокрутка */
+    body.mobile-layout .overflow-x-auto {
+      overflow-x: auto;
+    }
   </style>
 </head>
 
@@ -79,7 +161,7 @@
 
   <div class="max-w-[1920px] mx-auto flex h-screen w-full border-x border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden relative">
 
-    <!-- SIDEBAR с оверлеем для мобильных -->
+    <!-- SIDEBAR -->
     <aside id="sidebar"
       class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col fixed inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform z-50 shadow-xl md:shadow-none">
       <div onclick="showProfileModal()" class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
@@ -103,7 +185,7 @@
     </aside>
 
     <!-- Оверлей для закрытия меню на мобильных -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity" onclick="closeMobileSidebar()"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity" onclick="closeMobileSidebar()"></div>
 
     <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-w-0">
@@ -114,7 +196,10 @@
           </button>
           <h2 id="pageTitle" class="text-xl md:text-2xl font-semibold">Обзор</h2>
         </div>
-        <button id="themeToggle" class="text-3xl w-12 h-12 flex items-center justify-center rounded-full">🌙</button>
+        <div class="flex items-center gap-2">
+          <button id="layoutToggle" class="text-2xl w-12 h-12 flex items-center justify-center rounded-full" title="Переключить вид (ПК / Телефон)">📱</button>
+          <button id="themeToggle" class="text-3xl w-12 h-12 flex items-center justify-center rounded-full">🌙</button>
+        </div>
       </header>
 
       <main class="flex-1 overflow-auto p-3 md:p-6">
@@ -203,7 +288,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЫЕ ОКНА (адаптивные) -->
+  <!-- Все модальные окна (без изменений, они уже адаптивны) -->
   <!-- Пополнить цель из баланса -->
   <div id="modalTopUpFromBalance" onclick="if(event.target.id === 'modalTopUpFromBalance') this.classList.add('hidden')"
     class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -395,7 +480,7 @@
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
       if (sidebar && overlay) {
-        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('sidebar-open');
         overlay.classList.add('hidden');
       }
     }
@@ -404,7 +489,7 @@
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebarOverlay');
       if (sidebar && overlay) {
-        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('sidebar-open');
         overlay.classList.remove('hidden');
       }
     }
@@ -419,7 +504,7 @@
       if (sidebar) {
         sidebar.querySelectorAll('button, .tab-nav').forEach(el => {
           el.addEventListener('click', () => {
-            if (window.innerWidth < 768) {
+            if (document.body.classList.contains('mobile-layout')) {
               closeMobileSidebar();
             }
           });
