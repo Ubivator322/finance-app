@@ -52,10 +52,41 @@ function updateSidebarAvatar() {
   el.style.backgroundColor = isDark ? '#27272a' : '#f4f4f5';
 }
 
+// ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПК И МОБИЛЬНЫМ РЕЖИМОМ ==========
+function setLayout(mode) {
+  const body = document.body;
+  const toggleBtn = document.getElementById('layoutToggle');
+  if (!body) return;
+  if (mode === 'mobile') {
+    body.classList.add('mobile-layout');
+    localStorage.setItem('layout', 'mobile');
+    if (toggleBtn) toggleBtn.textContent = '💻';
+  } else {
+    body.classList.remove('mobile-layout');
+    localStorage.setItem('layout', 'pc');
+    if (toggleBtn) toggleBtn.textContent = '📱';
+  }
+  // Закрываем сайдбар, если он открыт
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (sidebar) sidebar.classList.remove('sidebar-open');
+  if (overlay) {
+    overlay.classList.remove('overlay-visible');
+    overlay.classList.add('hidden');
+  }
+}
+
+function toggleLayout() {
+  const isMobile = document.body.classList.contains('mobile-layout');
+  setLayout(isMobile ? 'pc' : 'mobile');
+}
+
+// ====================== ЗАПУСК ======================
 document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await loadUserData();
   if (!loaded) return;
 
+  // Тема
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
 
@@ -70,6 +101,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Автоопределение мобильного устройства
+  const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const savedLayout = localStorage.getItem('layout');
+  if (savedLayout === 'mobile' || (isMobileDevice && savedLayout !== 'pc')) {
+    setLayout('mobile');
+  } else {
+    setLayout('pc');
+  }
+
+  // Кнопка переключения режима
+  const layoutToggle = document.getElementById('layoutToggle');
+  if (layoutToggle) layoutToggle.addEventListener('click', toggleLayout);
+
+  // Кнопки "Расход" / "Доход"
   document.getElementById('addExpenseBtn').addEventListener('click', () => {
     if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
   });
@@ -77,6 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
   });
 
+  // Навигация по табам
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
@@ -94,12 +140,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // Кнопка "Добавить цель"
   const addGoalBtn = document.getElementById('addGoalBtn');
   if (addGoalBtn) addGoalBtn.addEventListener('click', (e) => {
     e.stopImmediatePropagation();
     if (typeof window.showGoalModal === 'function') window.showGoalModal();
   });
 
+  // Выход
   document.getElementById('logoutBtn').addEventListener('click', logout);
   renderOverview();
 });
