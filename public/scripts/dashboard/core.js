@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ПОЛНАЯ ВЕРСИЯ С ПЕРЕКЛЮЧЕНИЕМ РЕЖИМОВ ======================
+// ====================== CORE.JS — ПОЛНАЯ ВЕРСИЯ С ПЕРЕКЛЮЧЕНИЕМ РЕЖИМОВ И АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -119,12 +119,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 3. Инициализация режима (ПК / мобильный)
+  // 3. Инициализация режима (ПК / мобильный) – автоматически + ручное сохранение
+  const isMobileByWidth = window.innerWidth <= 768;
   const savedLayout = localStorage.getItem('layout');
-  if (savedLayout === 'mobile') {
-    setLayout('mobile');
+
+  if (isMobileByWidth) {
+    // На телефоне всегда включаем мобильный режим, но сохраняем выбор пользователя, если он переключил вручную
+    if (savedLayout === 'pc') {
+      setLayout('pc'); // если пользователь явно выбрал ПК на телефоне, уважаем его выбор
+    } else {
+      setLayout('mobile');
+    }
   } else {
-    setLayout('pc');
+    if (savedLayout === 'mobile') {
+      setLayout('mobile');
+    } else {
+      setLayout('pc');
+    }
   }
 
   // 4. Кнопка переключения режима

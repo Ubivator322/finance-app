@@ -1,13 +1,13 @@
-// ====================== OVERVIEW.JS — ИСПРАВЛЕННЫЙ РАСЧЁТ БАЛАНСА ======================
+// ====================== OVERVIEW.JS — ИСПРАВЛЕННЫЙ РАСЧЁТ БАЛАНСА + КЛАССЫ ДЛЯ МОБИЛЬНОГО CSS ======================
 
 function renderOverview() {
   const allTrans = currentUser.data.transactions || [];
   const realTrans = getRealTransactions(allTrans);   // только для операционных доходов/расходов
 
-  // === СВОБОДНЫЙ БАЛАНС (учитывает ВСЕ переводы на/с целей) ===
+  // СВОБОДНЫЙ БАЛАНС (учитывает ВСЕ переводы на/с целей)
   const freeBalance = allTrans.reduce((sum, t) => sum + t.amount, 0);
 
-  // === ОПЕРАЦИОННЫЕ расходы и доходы (без переводов на цели) ===
+  // ОПЕРАЦИОННЫЕ расходы и доходы (без переводов на цели)
   let totalExpense = 0;
   let totalIncome = 0;
   realTrans.forEach(t => {
@@ -27,8 +27,11 @@ function renderTransactions() {
   const list = document.getElementById('transactionsList');
   const trans = currentUser.data.transactions.slice(0, 12);
   list.innerHTML = trans.map(t => `
-    <div class="flex justify-between items-center bg-zinc-100 dark:bg-zinc-800 rounded-3xl px-6 py-4">
-      <div><div class="font-medium">${t.category}</div><div class="text-xs text-zinc-500">${t.date}</div></div>
+    <div class="flex justify-between items-center bg-zinc-100 dark:bg-zinc-800 rounded-3xl px-6 py-4 transactions-list-item">
+      <div>
+        <div class="font-medium">${t.category}</div>
+        <div class="text-xs text-zinc-500">${t.date}</div>
+      </div>
       <div class="font-bold ${t.amount < 0 ? 'text-red-500' : 'text-green-500'}">${t.amount.toLocaleString('ru-RU')} ₽</div>
     </div>
   `).join('');
