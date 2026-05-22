@@ -2,13 +2,15 @@
 <html lang="ru" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Мир финансов</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/tailwind-script.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
   <script src="scripts/utils.js"></script>
   <script src="scripts/dashboard/helpers.js"></script>
   <script src="scripts/dashboard/overview.js"></script>
@@ -18,6 +20,7 @@
   <script src="scripts/dashboard/profile.js"></script>
   <script src="scripts/dashboard/core.js"></script>
   <script src="scripts/dashboard/budget.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -32,201 +35,159 @@
     main::-webkit-scrollbar, #transactionsList::-webkit-scrollbar { display: none; }
     .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     button, .tab-nav, .clickable { cursor: pointer; touch-action: manipulation; }
-
-    /* ========== МОБИЛЬНЫЙ РЕЖИМ (КЛАСС .mobile-layout) ========== */
-    body.mobile-layout .grid-cols-1,
-    body.mobile-layout .grid-cols-2,
-    body.mobile-layout .grid-cols-3,
-    body.mobile-layout .grid-cols-4,
-    body.mobile-layout .grid-cols-5,
-    body.mobile-layout .sm\:grid-cols-2,
-    body.mobile-layout .md\:grid-cols-3,
-    body.mobile-layout .lg\:grid-cols-4,
-    body.mobile-layout .lg\:grid-cols-5 {
-      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-    }
-    body.mobile-layout .flex-col.sm\:flex-row {
-      flex-direction: column !important;
-    }
-    body.mobile-layout .p-6, body.mobile-layout .p-5, body.mobile-layout .md\:p-6, body.mobile-layout .md\:p-8 {
-      padding: 1.2rem !important;
-    }
-    body.mobile-layout .text-4xl { font-size: 2rem !important; }
-    body.mobile-layout .text-3xl { font-size: 1.8rem !important; }
-    body.mobile-layout .text-2xl { font-size: 1.5rem !important; }
-    body.mobile-layout .text-xl { font-size: 1.3rem !important; }
-    body.mobile-layout .text-lg { font-size: 1.1rem !important; }
-    body.mobile-layout .text-base { font-size: 1rem !important; }
-    body.mobile-layout .text-sm { font-size: 0.9rem !important; }
-    body.mobile-layout .gap-6 { gap: 1rem !important; }
-    body.mobile-layout .gap-4 { gap: 0.8rem !important; }
-    body.mobile-layout .mb-8 { margin-bottom: 1.2rem !important; }
-    body.mobile-layout .mb-6 { margin-bottom: 1rem !important; }
-    body.mobile-layout .rounded-3xl { border-radius: 1.5rem !important; }
-    body.mobile-layout button, body.mobile-layout .tab-nav { min-height: 48px !important; }
-    body.mobile-layout #addExpenseBtn, body.mobile-layout #addIncomeBtn {
-      padding: 0.8rem !important;
-      font-size: 1.2rem !important;
-    }
-    body.mobile-layout #transactionsList > div {
-      padding: 0.8rem 1rem !important;
-    }
-    /* Сайдбар в мобильном режиме – выдвижной */
-    body.mobile-layout #sidebar {
-      transform: translateX(-100%) !important;
-      position: fixed !important;
-      transition: transform 0.3s ease !important;
-      z-index: 1000 !important;
-    }
-    body.mobile-layout #sidebar.sidebar-open {
-      transform: translateX(0) !important;
-    }
-    body.mobile-layout #sidebarOverlay {
-      position: fixed !important;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999 !important;
-      display: none !important;
-    }
-    body.mobile-layout #sidebarOverlay.overlay-visible {
-      display: block !important;
-    }
-    /* В ПК-режиме сайдбар видим всегда, оверлей скрыт */
-    body:not(.mobile-layout) #sidebar {
-      transform: translateX(0) !important;
-      position: relative !important;
-    }
-    body:not(.mobile-layout) #sidebarOverlay {
-      display: none !important;
-    }
-    /* Кнопка гамбургера видна только на мобильных */
-    body.mobile-layout #mobileMenuBtn {
-      display: flex !important;
-    }
-    body:not(.mobile-layout) #mobileMenuBtn {
-      display: none !important;
-    }
-    body.mobile-layout canvas {
-      max-height: 200px !important;
-    }
   </style>
 </head>
 <body class="bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen">
-  <div class="max-w-[1920px] mx-auto flex h-screen w-full border-x border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col fixed inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform z-50 shadow-xl md:shadow-none">
-      <div onclick="showProfileModal()" class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
-        <div id="sidebarAvatar" class="w-11 h-11 bg-zinc-700 rounded-2xl flex items-center justify-center text-3xl">👤</div>
-        <div class="flex-1"><h1 id="userName" class="font-bold text-xl"></h1><p class="text-sm text-zinc-500">Профиль</p></div>
+
+<div class="flex h-screen w-full overflow-hidden relative">
+  <!-- SIDEBAR (адаптивный: фиксированный на мобильных, статический на десктопе) -->
+  <aside id="sidebar"
+    class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col
+           fixed inset-y-0 left-0 -translate-x-full md:static md:translate-x-0 transition-all duration-300 z-50 shadow-xl">
+    <div onclick="showProfileModal()" class="p-5 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800">
+      <div id="sidebarAvatar" class="w-11 h-11 bg-zinc-700 rounded-2xl flex items-center justify-center text-3xl">👤</div>
+      <div class="flex-1">
+        <h1 id="userName" class="font-bold text-xl"></h1>
+        <p class="text-sm text-zinc-500">Профиль</p>
       </div>
-      <nav class="flex-1 p-4 space-y-1">
-        <button data-tab="overview" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium active">Обзор</button>
-        <button data-tab="analytics" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Аналитика</button>
-        <button data-tab="goals" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Цели</button>
-        <button data-tab="budget" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Бюджет</button>
-      </nav>
-      <div class="p-4 border-t border-zinc-200 dark:border-zinc-800"><button id="logoutBtn" class="w-full py-3 text-red-500 hover:text-red-600 font-medium">Выйти</button></div>
-    </aside>
-    <!-- Оверлей для мобильного меню -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity" onclick="closeMobileSidebar()"></div>
-    <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col min-w-0">
-      <header class="bg-white dark:bg-zinc-900 border-b px-4 py-4 flex items-center justify-between sticky top-0 z-30">
-        <div class="flex items-center gap-4">
-          <button id="mobileMenuBtn" class="md:hidden text-3xl px-2 w-12 h-12 flex items-center justify-center rounded-full active:bg-zinc-200 dark:active:bg-zinc-800"><i class="fas fa-bars"></i></button>
-          <h2 id="pageTitle" class="text-xl md:text-2xl font-semibold">Обзор</h2>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="layoutToggle" class="text-2xl w-12 h-12 flex items-center justify-center rounded-full" title="Переключить вид (ПК / Телефон)">📱</button>
-          <button id="themeToggle" class="text-3xl w-12 h-12 flex items-center justify-center rounded-full">🌙</button>
-        </div>
-      </header>
-      <main class="flex-1 overflow-auto p-3 md:p-6">
-        <!-- ОБЗОР -->
-        <div id="overviewTab" class="tab-content active">
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Баланс</p><p id="totalBalance" class="text-3xl md:text-4xl font-bold mt-2">0 ₽</p></div>
-            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Расходы</p><p id="totalExpense" class="text-3xl md:text-4xl font-bold text-red-500 mt-2">0 ₽</p></div>
-            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Доходы</p><p id="totalIncome" class="text-3xl md:text-4xl font-bold text-green-500 mt-2">0 ₽</p></div>
-          </div>
-          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 mb-8"><h3 class="font-semibold mb-4">Распределение по категориям</h3><canvas id="categoryChart" height="180"></canvas></div>
-          <div class="flex flex-col sm:flex-row gap-4 mb-6">
-            <button id="addExpenseBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-minus-circle"></i> Расход</button>
-            <button id="addIncomeBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-plus-circle"></i> Доход</button>
-          </div>
-          <h3 class="font-semibold mb-4 text-xl md:text-2xl">Последние операции</h3>
-          <div id="transactionsList" class="space-y-3"></div>
-        </div>
-        <!-- АНАЛИТИКА -->
-        <div id="analyticsTab" class="tab-content p-3 md:p-8">
-          <div id="analyticsSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10"></div>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Доходы и расходы по месяцам</h3><canvas id="incomeExpenseChart" height="200"></canvas></div>
-            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Распределение расходов</h3><canvas id="categoryPieChart" height="200"></canvas></div>
-          </div>
-          <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div class="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Топ-7 категорий расходов</h3><canvas id="topExpenseChart" height="220"></canvas></div>
-            <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Разбивка по месяцам</h3><div class="overflow-x-auto max-h-[340px]"><table id="monthlyTable" class="w-full text-sm min-w-[300px]"></table></div></div>
-          </div>
-        </div>
-        <!-- ЦЕЛИ -->
-        <div id="goalsTab" class="tab-content p-3 md:p-8">
-          <h2 class="text-2xl md:text-3xl font-semibold mb-6 md:mb-8">Цели накоплений</h2>
-          <div id="goalsList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-          <button id="addGoalBtn" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-plus"></i> Добавить новую цель</button>
-        </div>
-        <!-- БЮДЖЕТ -->
-        <div id="budgetTab" class="tab-content p-3 md:p-8">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <h2 id="budgetMonthTitle" class="text-2xl md:text-3xl font-semibold">Бюджет на март 2026</h2>
-            <input type="month" id="budgetMonthPicker" value="" class="bg-white dark:bg-zinc-900 rounded-3xl px-6 py-3 border border-zinc-200 dark:border-zinc-800">
-          </div>
-          <div id="budgetsList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-        </div>
-      </main>
     </div>
+    <nav class="flex-1 p-4 space-y-1">
+      <button data-tab="overview" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium active">Обзор</button>
+      <button data-tab="analytics" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Аналитика</button>
+      <button data-tab="goals" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Цели</button>
+      <button data-tab="budget" class="tab-nav w-full text-left px-5 py-4 rounded-2xl flex items-center gap-3 font-medium">Бюджет</button>
+    </nav>
+    <div class="p-4 border-t border-zinc-200 dark:border-zinc-800">
+      <button id="logoutBtn" class="w-full py-3 text-red-500 hover:text-red-600 font-medium">Выйти</button>
+    </div>
+  </aside>
+
+  <!-- Оверлей для закрытия меню на мобильных -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity" onclick="closeMobileSidebar()"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <header class="bg-white dark:bg-zinc-900 border-b px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+      <div class="flex items-center gap-3">
+        <!-- Кнопка гамбургера (только на мобильных) -->
+        <button id="mobileMenuBtn" class="md:hidden text-2xl p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h2 id="pageTitle" class="text-xl md:text-2xl font-semibold">Обзор</h2>
+      </div>
+      <button id="themeToggle" class="text-2xl p-2 rounded-full">🌙</button>
+    </header>
+
+    <main class="flex-1 overflow-auto p-3 md:p-6">
+      <!-- ОБЗОР -->
+      <div id="overviewTab" class="tab-content active">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Баланс</p><p id="totalBalance" class="text-3xl md:text-4xl font-bold mt-2">0 ₽</p></div>
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Расходы</p><p id="totalExpense" class="text-3xl md:text-4xl font-bold text-red-500 mt-2">0 ₽</p></div>
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><p class="text-sm text-zinc-500">Доходы</p><p id="totalIncome" class="text-3xl md:text-4xl font-bold text-green-500 mt-2">0 ₽</p></div>
+        </div>
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 mb-8"><h3 class="font-semibold mb-4">Распределение по категориям</h3><canvas id="categoryChart" height="180"></canvas></div>
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+          <button id="addExpenseBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-minus-circle"></i> Расход</button>
+          <button id="addIncomeBtn" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-plus-circle"></i> Доход</button>
+        </div>
+        <h3 class="font-semibold mb-4 text-xl md:text-2xl">Последние операции</h3>
+        <div id="transactionsList" class="space-y-3"></div>
+      </div>
+
+      <!-- АНАЛИТИКА -->
+      <div id="analyticsTab" class="tab-content p-3 md:p-8">
+        <div id="analyticsSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Доходы и расходы по месяцам</h3><canvas id="incomeExpenseChart" height="200"></canvas></div>
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Распределение расходов</h3><canvas id="categoryPieChart" height="200"></canvas></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div class="lg:col-span-3 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Топ-7 категорий расходов</h3><canvas id="topExpenseChart" height="220"></canvas></div>
+          <div class="lg:col-span-2 bg-white dark:bg-zinc-900 rounded-3xl p-5 md:p-6 border border-zinc-200 dark:border-zinc-800"><h3 class="font-semibold text-lg mb-4">Разбивка по месяцам</h3><div class="overflow-x-auto max-h-[340px]"><table id="monthlyTable" class="w-full text-sm min-w-[300px]"><tr></div></div>
+        </div>
+      </div>
+
+      <!-- ЦЕЛИ -->
+      <div id="goalsTab" class="tab-content p-3 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold mb-6 md:mb-8">Цели накоплений</h2>
+        <div id="goalsList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        <button id="addGoalBtn" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-3xl flex items-center justify-center gap-2 text-lg font-medium active:scale-[0.98] transition-transform"><i class="fas fa-plus"></i> Добавить новую цель</button>
+      </div>
+
+      <!-- БЮДЖЕТ -->
+      <div id="budgetTab" class="tab-content p-3 md:p-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 id="budgetMonthTitle" class="text-2xl md:text-3xl font-semibold">Бюджет на март 2026</h2>
+          <input type="month" id="budgetMonthPicker" value="" class="bg-white dark:bg-zinc-900 rounded-3xl px-6 py-3 border border-zinc-200 dark:border-zinc-800">
+        </div>
+        <div id="budgetsList" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
+    </main>
   </div>
+</div>
 
-  <!-- Все модальные окна (без изменений, они уже есть) -->
-  <!-- ... оставляем все модалки как в вашем файле, они уже скопированы корректно ... -->
-  <!-- Для краткости здесь оставлен плейсхолдер, но в реальном файле они должны быть все -->
-  <!-- ВАЖНО: перенесите сюда все модальные окна из вашего текущего dashboard.html (они идут после этого комментария) -->
+<!-- ========== МОДАЛЬНЫЕ ОКНА (без изменений, оставляем как было) ========== -->
+<div id="modalTopUpFromBalance" onclick="if(event.target.id === 'modalTopUpFromBalance') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800"><div class="p-6 md:p-8"><h3 class="text-xl md:text-2xl font-semibold mb-6 text-center text-zinc-900 dark:text-white">Пополнить цель</h3><input id="topUpAmount" type="number" placeholder="Сумма" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-2xl px-6 py-5 rounded-3xl mb-6 outline-none focus:ring-2 focus:ring-violet-500"><p id="topUpGoalName" class="text-center text-zinc-500 dark:text-zinc-400 text-sm mb-2"></p></div><div class="flex gap-3 px-6 pb-6 md:px-8 md:pb-8"><button onclick="closeTopUpModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button onclick="confirmTopUpFromBalance()" class="flex-1 py-4 bg-violet-600 text-white rounded-3xl">Пополнить</button></div></div></div>
 
-  <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-3 z-50"></div>
+<div id="modalSpendFromGoal" onclick="if(event.target.id === 'modalSpendFromGoal') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-auto rounded-3xl overflow-hidden border border-zinc-200 dark:border-zinc-800"><div class="p-6 md:p-8"><h3 class="text-xl md:text-2xl font-semibold mb-6 text-center text-zinc-900 dark:text-white">Списать с цели на баланс</h3><input id="spendAmount" type="number" placeholder="Сумма" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-2xl px-6 py-5 rounded-3xl mb-6 outline-none focus:ring-2 focus:ring-red-500"><p id="spendGoalName" class="text-center text-zinc-500 dark:text-zinc-400 text-sm mb-2"></p></div><div class="flex gap-3 px-6 pb-6 md:px-8 md:pb-8"><button onclick="closeSpendModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button onclick="confirmSpendFromGoal()" class="flex-1 py-4 bg-red-600 text-white rounded-3xl">Списать на баланс</button></div></div></div>
 
-  <script>
-    function closeMobileSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      if (sidebar && overlay) {
-        sidebar.classList.remove('sidebar-open');
-        overlay.classList.remove('overlay-visible');
-        overlay.classList.add('hidden');
-      }
+<div id="modalProfile" onclick="if(event.target.id === 'modalProfile') closeProfileModal()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-md mx-auto rounded-3xl overflow-hidden"><div class="pt-8 pb-6 text-center"><div onclick="openAvatarModal()" class="w-24 h-24 mx-auto bg-zinc-200 dark:bg-zinc-800 rounded-3xl flex items-center justify-center text-6xl cursor-pointer hover:scale-105 transition-transform border-4 border-zinc-300 dark:border-zinc-700"><span id="profileAvatar">👤</span></div><div class="flex items-center justify-center gap-3 mt-5"><h2 id="profileName" class="text-2xl md:text-3xl font-semibold text-zinc-900 dark:text-white"></h2><button onclick="openEditNameModal()" class="text-violet-500 hover:text-violet-600 text-2xl">✏️</button></div><p id="profileEmail" class="text-zinc-500 dark:text-zinc-400 text-sm mt-1"></p></div><div class="px-6 pb-6 space-y-3"><button onclick="clearExpenses()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить все расходы</button><button onclick="clearIncomes()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить все доходы</button><button onclick="clearAll()" class="w-full h-14 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-3xl font-medium">🗑️ Очистить всю историю</button><button onclick="exportExcel()" class="w-full h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">📥 Экспорт в Excel</button></div></div></div>
+
+<div id="modalEditName" onclick="if(event.target.id === 'modalEditName') closeAllModals()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-[380px] mx-auto rounded-3xl p-6 md:p-8"><h3 class="text-xl font-semibold text-center mb-6 text-zinc-900 dark:text-white">Сменить имя</h3><input id="editNameInput" type="text" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white px-6 py-4 rounded-3xl outline-none focus:ring-2 focus:ring-violet-500 text-lg" placeholder="Новое имя"><div class="flex gap-3 mt-8"><button onclick="closeEditNameModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button onclick="saveNewName()" class="flex-1 py-4 bg-violet-600 text-white rounded-3xl">Сохранить</button></div></div></div>
+
+<div id="modalAvatar" onclick="if(event.target.id === 'modalAvatar') closeAllModals()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-[420px] mx-auto rounded-3xl p-6 md:p-8"><h3 class="text-xl font-semibold text-center mb-6 text-zinc-900 dark:text-white">Выберите аватар</h3><div class="grid grid-cols-6 gap-4 mb-8" id="emojiGrid"></div><button onclick="closeAvatarModal()" class="w-full mt-6 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button></div></div>
+
+<div id="modalIncome" onclick="if(event.target.id === 'modalIncome') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 w-full max-w-[500px] mx-auto"><h3 class="text-2xl font-semibold mb-6 text-emerald-600">Новый доход</h3><select id="incomeCategory" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4"></select><input id="incomeAmount" type="number" placeholder="Сумма" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4 text-2xl"><input id="incomeDate" type="date" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4"><textarea id="incomeDesc" placeholder="Описание" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl h-24 mb-6"></textarea><div class="mb-6"><p class="text-sm text-zinc-500 mb-2">Пополнить цель</p><select id="incomeToGoal" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl"><option value="">Не пополнять цель</option></select></div><div class="flex flex-col sm:flex-row gap-4"><button id="cancelIncome" class="flex-1 py-4 rounded-3xl border">Отмена</button><button id="saveIncome" class="flex-1 py-4 bg-emerald-500 text-white rounded-3xl">Сохранить доход</button></div></div></div>
+
+<div id="modalExpense" onclick="if(event.target.id === 'modalExpense') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"><div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 md:p-8 w-full max-w-[500px] mx-auto"><h3 class="text-2xl font-semibold mb-6 text-red-600">Новый расход</h3><select id="expenseCategory" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4"></select><input id="expenseAmount" type="number" placeholder="Сумма" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4 text-2xl"><input id="expenseDate" type="date" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl mb-4"><textarea id="expenseDesc" placeholder="Описание" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl h-24 mb-6"></textarea><div class="mb-6"><p class="text-sm text-zinc-500 mb-2">Списать с цели</p><select id="expenseFromGoal" class="w-full px-5 py-4 bg-zinc-100 dark:bg-zinc-800 rounded-3xl"><option value="">Не списывать с цели</option></select></div><div class="flex flex-col sm:flex-row gap-4"><button id="cancelExpense" class="flex-1 py-4 rounded-3xl border">Отмена</button><button id="saveExpense" class="flex-1 py-4 bg-red-500 text-white rounded-3xl">Сохранить расход</button></div></div></div>
+
+<div id="modalGoal" onclick="if(event.target.id === 'modalGoal') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-[440px] mx-auto rounded-3xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800"><div class="p-6 md:p-8"><h3 class="text-2xl font-semibold mb-8 text-center text-zinc-900 dark:text-white">Новая цель</h3><input id="goalName" type="text" placeholder="Название цели" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-lg px-6 py-5 rounded-3xl mb-4 outline-none focus:ring-2 focus:ring-violet-500"><div class="relative mb-4"><input id="goalTarget" type="number" placeholder="Целевая сумма" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-lg px-6 py-5 rounded-3xl outline-none focus:ring-2 focus:ring-violet-500 pr-14"><span class="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500 text-xl font-medium">₽</span></div><div class="relative"><input id="goalDeadline" type="date" class="w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white text-lg px-6 py-5 rounded-3xl outline-none focus:ring-2 focus:ring-violet-500"></div></div><div class="flex gap-3 px-6 pb-6 md:px-8 md:pb-8"><button id="cancelGoal" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white font-medium rounded-3xl">Отмена</button><button id="saveGoal" class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-3xl">Сохранить цель</button></div></div></div>
+
+<div id="modalConfirm" onclick="if(event.target.id === 'modalConfirm') this.classList.add('hidden')" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-[380px] mx-auto rounded-3xl p-6 md:p-8 shadow-2xl"><h3 id="confirmTitle" class="text-xl font-semibold text-center mb-4 text-zinc-900 dark:text-white"></h3><p id="confirmText" class="text-center text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed"></p><div class="flex gap-3"><button id="confirmCancel" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl">Отмена</button><button id="confirmOk" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-3xl">Да</button></div></div></div>
+
+<div id="modalBudget" onclick="if(event.target.id === 'modalBudget') closeBudgetModal()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-md mx-auto rounded-3xl p-6 md:p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800"><h3 class="text-2xl font-semibold mb-6 text-center" id="budgetModalTitle">Лимит на категорию</h3><input id="budgetLimitInput" type="number" class="w-full bg-zinc-100 dark:bg-zinc-800 text-3xl md:text-4xl px-6 py-5 md:py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500"><div class="flex gap-3 mt-8"><button onclick="closeBudgetModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button><button onclick="saveBudgetLimit()" class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button></div></div></div>
+
+<div id="modalMonthlyBudget" onclick="if(event.target.id === 'modalMonthlyBudget') closeMonthlyBudgetModal()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[70] p-4"><div onclick="event.stopPropagation()" class="bg-white dark:bg-zinc-900 w-full max-w-md mx-auto rounded-3xl p-6 md:p-8 shadow-2xl border border-zinc-200 dark:border-zinc-800"><h3 class="text-2xl font-semibold mb-6 text-center" id="monthlyBudgetTitle">Общий бюджет на месяц</h3><input id="monthlyBudgetInput" type="number" class="w-full bg-zinc-100 dark:bg-zinc-800 text-3xl md:text-4xl px-6 py-5 md:py-6 rounded-3xl text-center outline-none focus:ring-2 focus:ring-violet-500"><div class="flex gap-3 mt-8"><button onclick="closeMonthlyBudgetModal()" class="flex-1 py-4 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white rounded-3xl font-medium">Отмена</button><button onclick="saveMonthlyBudget()" class="flex-1 py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-3xl font-medium">Сохранить</button></div></div></div>
+
+<div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-3 z-50"></div>
+
+<script>
+  // ========== МОБИЛЬНОЕ МЕНЮ ==========
+  function closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && overlay) {
+      sidebar.classList.remove('translate-x-0');
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+      overlay.classList.remove('overlay-visible');
     }
-    function openMobileSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      if (sidebar && overlay) {
-        sidebar.classList.add('sidebar-open');
-        overlay.classList.remove('hidden');
-        overlay.classList.add('overlay-visible');
-      }
+  }
+  function openMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && overlay) {
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      overlay.classList.remove('hidden');
+      overlay.classList.add('overlay-visible');
     }
-    document.addEventListener('DOMContentLoaded', function() {
-      const mobileBtn = document.getElementById('mobileMenuBtn');
-      if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
-      const sidebar = document.getElementById('sidebar');
-      if (sidebar) {
-        sidebar.querySelectorAll('button, .tab-nav').forEach(el => {
-          el.addEventListener('click', () => {
-            if (document.body.classList.contains('mobile-layout')) closeMobileSidebar();
-          });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    if (mobileBtn) mobileBtn.addEventListener('click', openMobileSidebar);
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.querySelectorAll('button, .tab-nav').forEach(el => {
+        el.addEventListener('click', () => {
+          if (window.innerWidth < 768) closeMobileSidebar();
         });
-      }
-      const monthPicker = document.getElementById('budgetMonthPicker');
-      if (monthPicker && !monthPicker.value) monthPicker.value = new Date().toISOString().slice(0,7);
-    });
-  </script>
+      });
+    }
+    const monthPicker = document.getElementById('budgetMonthPicker');
+    if (monthPicker && !monthPicker.value) monthPicker.value = new Date().toISOString().slice(0,7);
+  });
+</script>
 </body>
 </html>
