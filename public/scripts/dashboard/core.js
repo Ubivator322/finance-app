@@ -1,4 +1,4 @@
-// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ С АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА И КРУПНЫМ МОБИЛЬНЫМ РЕЖИМОМ ======================
+// ====================== CORE.JS — ФИНАЛЬНАЯ ВЕРСИЯ С АВТООПРЕДЕЛЕНИЕМ ТЕЛЕФОНА ======================
 let currentUser = null;
 let categoryChart = null;
 let incomeExpenseChart = null;
@@ -15,7 +15,6 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
   const config = { method, headers: { 'Content-Type': 'application/json' } };
   if (token) config.headers.Authorization = `Bearer ${token}`;
   if (body) config.body = JSON.stringify(body);
-
   try {
     const res = await fetch(API_BASE + endpoint, config);
     if (res.status === 401) {
@@ -45,51 +44,33 @@ async function loadUserData() {
 function updateSidebarAvatar() {
   const el = document.getElementById('sidebarAvatar');
   if (!el || !currentUser) return;
-  
   const isDark = document.documentElement.classList.contains('dark');
-  
   if (currentUser.avatar && currentUser.avatar.startsWith('data:image')) {
     el.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover rounded-2xl">`;
   } else {
     el.innerHTML = `<span class="text-3xl">${currentUser.avatar || '👤'}</span>`;
   }
-  
   el.style.backgroundColor = isDark ? '#27272a' : '#f4f4f5';
 }
 
-// ========== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ПК И МОБИЛЬНЫМ РЕЖИМОМ ==========
 function setLayout(mode) {
   const body = document.body;
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
   const toggleBtn = document.getElementById('layoutToggle');
-
   if (!body) return;
-
   if (mode === 'mobile') {
     body.classList.add('mobile-layout');
     localStorage.setItem('layout', 'mobile');
     if (toggleBtn) toggleBtn.textContent = '💻';
-    if (sidebar) {
-      sidebar.classList.remove('sidebar-open');
-      sidebar.style.transform = '';
-    }
-    if (overlay) {
-      overlay.classList.add('hidden');
-      overlay.classList.remove('overlay-visible');
-    }
+    if (sidebar) sidebar.classList.remove('sidebar-open');
+    if (overlay) overlay.classList.add('hidden');
   } else {
     body.classList.remove('mobile-layout');
     localStorage.setItem('layout', 'pc');
     if (toggleBtn) toggleBtn.textContent = '📱';
-    if (sidebar) {
-      sidebar.classList.remove('-translate-x-full', 'sidebar-open');
-      sidebar.style.transform = '';
-    }
-    if (overlay) {
-      overlay.classList.add('hidden');
-      overlay.classList.remove('overlay-visible');
-    }
+    if (sidebar) sidebar.classList.remove('-translate-x-full', 'sidebar-open');
+    if (overlay) overlay.classList.add('hidden');
   }
 }
 
@@ -98,15 +79,12 @@ function toggleLayout() {
   setLayout(isMobile ? 'pc' : 'mobile');
 }
 
-// ====================== ЗАПУСК ======================
 document.addEventListener('DOMContentLoaded', async () => {
   const loaded = await loadUserData();
   if (!loaded) return;
-
   // Тема
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {
     themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
@@ -117,62 +95,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateSidebarAvatar();
     });
   }
-
-  // === АВТООПРЕДЕЛЕНИЕ ТЕЛЕФОНА: ширина <= 768px ===
-  if (window.innerWidth <= 768) {
+  // Автоопределение мобильного устройства (ширина + userAgent)
+  const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobileDevice) {
     setLayout('mobile');
   } else {
     setLayout('pc');
   }
-
-  // Кнопка переключения режима
+  // Кнопка переключения
   const layoutToggle = document.getElementById('layoutToggle');
-  if (layoutToggle) {
-    layoutToggle.addEventListener('click', toggleLayout);
-  }
-
-  // Кнопки "Расход" / "Доход"
-  document.getElementById('addExpenseBtn').addEventListener('click', () => {
-    if (typeof window.showExpenseModal === 'function') window.showExpenseModal();
-  });
-  document.getElementById('addIncomeBtn').addEventListener('click', () => {
-    if (typeof window.showIncomeModal === 'function') window.showIncomeModal();
-  });
-
-  // Навигация по табам
+  if (layoutToggle) layoutToggle.addEventListener('click', toggleLayout);
+  // Кнопки
+  document.getElementById('addExpenseBtn').addEventListener('click', () => { if (typeof window.showExpenseModal === 'function') window.showExpenseModal(); });
+  document.getElementById('addIncomeBtn').addEventListener('click', () => { if (typeof window.showIncomeModal === 'function') window.showIncomeModal(); });
+  // Табы
   document.querySelectorAll('.tab-nav').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-nav').forEach(b => b.classList.remove('active', 'bg-zinc-100', 'dark:bg-zinc-800'));
       btn.classList.add('active', 'bg-zinc-100', 'dark:bg-zinc-800');
-
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
       const tabId = btn.dataset.tab + 'Tab';
       const tabElement = document.getElementById(tabId);
       if (tabElement) tabElement.classList.add('active');
-
       document.getElementById('pageTitle').textContent = btn.textContent.trim();
-
       if (btn.dataset.tab === 'analytics') renderAnalytics();
       if (btn.dataset.tab === 'goals') renderGoals();
-      if (btn.dataset.tab === 'budget') {
-        if (typeof window.renderBudgets === 'function') window.renderBudgets();
-      }
+      if (btn.dataset.tab === 'budget') { if (typeof window.renderBudgets === 'function') window.renderBudgets(); }
     });
   });
-
-  // Кнопка "Добавить цель"
+  // Цели
   const addGoalBtn = document.getElementById('addGoalBtn');
-  if (addGoalBtn) {
-    addGoalBtn.addEventListener('click', (e) => {
-      e.stopImmediatePropagation();
-      if (typeof window.showGoalModal === 'function') window.showGoalModal();
-    });
-  }
-
+  if (addGoalBtn) addGoalBtn.addEventListener('click', (e) => { e.stopImmediatePropagation(); if (typeof window.showGoalModal === 'function') window.showGoalModal(); });
   // Выход
   document.getElementById('logoutBtn').addEventListener('click', logout);
-
-  // Первичный рендер
+  // Рендер
   renderOverview();
 });
 
