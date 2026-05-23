@@ -27,7 +27,7 @@ async function renderBudgets() {
       </div>
 
       <div class="text-6xl font-bold mb-1">${currentMonthlyLimit.toLocaleString('ru-RU')} ₽</div>
-      
+
       <div class="flex justify-between text-sm mb-4">
         <span class="text-red-500">Потрачено ${totalSpent.toLocaleString('ru-RU')} ₽</span>
         <span class="${remaining < 0 ? 'text-red-500' : 'text-emerald-500'}">Осталось ${remaining.toLocaleString('ru-RU')} ₽</span>
@@ -46,7 +46,7 @@ async function renderBudgets() {
 
   const monthExpenses = currentUser.data.transactions
     .filter(t => t.amount < 0 && t.date.startsWith(currentMonth))
-    .slice(0, 10); // последние 10 расходов
+    .slice(0, 10);
 
   if (monthExpenses.length === 0) {
     html += `<p class="text-zinc-500 text-center py-8">Пока нет расходов в этом месяце</p>`;
@@ -65,8 +65,8 @@ async function renderBudgets() {
 
   html += `</div></div></div>`;
 
-  // Карточки категорий
-  html += `<div class="grid grid-cols-2 gap-6">`;
+  // Карточки категорий — ИСПРАВЛЕНО: grid-cols-1 sm:grid-cols-2
+  html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">`;
   const categories = currentUser.data.expenseCategories || [];
 
   categories.forEach(cat => {

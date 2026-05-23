@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Мир финансов</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,12 +35,73 @@
     main::-webkit-scrollbar, #transactionsList::-webkit-scrollbar { display: none; }
     .overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     button, .tab-nav, .clickable { cursor: pointer; touch-action: manipulation; }
+
+    /* ========== MOBILE-FIRST FIXES ========== */
+    button, .tab-nav, select, input, textarea, [onclick], label {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    @media (max-width: 768px) {
+      input, select, textarea { font-size: 16px !important; }
+    }
+
+    @media (max-width: 640px) {
+      canvas { max-height: 200px !important; }
+    }
+
+    /* Таблица → карточки на телефоне */
+    @media (max-width: 640px) {
+      #monthlyTable thead { display: none; }
+      #monthlyTable, #monthlyTable tbody, #monthlyTable tr, #monthlyTable td {
+        display: block; width: 100%;
+      }
+      #monthlyTable tr {
+        margin-bottom: 0.75rem;
+        background: white;
+        border-radius: 1rem;
+        border: 1px solid rgb(228 228 231);
+        overflow: hidden;
+      }
+      .dark #monthlyTable tr { background: rgb(24 24 27); border-color: rgb(39 39 42); }
+      #monthlyTable td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border: none;
+        font-size: 0.875rem;
+      }
+      #monthlyTable td:not(:last-child) { border-bottom: 1px solid rgb(228 228 231); }
+      .dark #monthlyTable td:not(:last-child) { border-bottom-color: rgb(39 39 42); }
+      #monthlyTable td::before {
+        content: attr(data-label);
+        font-weight: 500;
+        color: rgb(113 113 122);
+        margin-right: 1rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      #transactionsList > div { padding: 0.75rem 1rem; }
+    }
+
+    @media (max-width: 640px) {
+      #modalProfile > div, #modalGoal > div, #modalIncome > div,
+      #modalExpense > div, #modalBudget > div, #modalMonthlyBudget > div {
+        max-width: 95vw !important;
+        margin: 0.5rem;
+      }
+    }
+
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
   </style>
+<base target="_blank">
 </head>
 <body class="bg-zinc-100 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen">
 
 <div class="flex h-screen w-full overflow-hidden relative">
-  <!-- SIDEBAR (адаптивный: фиксированный на мобильных, статический на десктопе) -->
+  <!-- SIDEBAR -->
   <aside id="sidebar"
     class="w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col
            fixed inset-y-0 left-0 -translate-x-full md:static md:translate-x-0 transition-all duration-300 z-50 shadow-xl">
@@ -62,7 +123,7 @@
     </div>
   </aside>
 
-  <!-- Оверлей для закрытия меню на мобильных -->
+  <!-- Оверлей -->
   <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity" onclick="closeMobileSidebar()"></div>
 
   <!-- MAIN CONTENT -->
@@ -154,7 +215,6 @@
 <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-3 z-50"></div>
 
 <script>
-  // ========== МОБИЛЬНОЕ МЕНЮ ==========
   function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -189,7 +249,6 @@
       });
     }
 
-    // Кнопка профиля в шапке
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn && typeof showProfileModal === 'function') {
       profileBtn.addEventListener('click', showProfileModal);

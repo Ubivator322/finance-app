@@ -1,4 +1,3 @@
-
 function renderAnalytics() {
   renderSummaryCards();
   renderIncomeExpenseChart();
@@ -9,7 +8,7 @@ function renderAnalytics() {
 
 function renderSummaryCards() {
   let trans = filterTransactionsByPeriod(currentUser.data.transactions || []);
-  trans = getRealTransactions(trans);   // ← ИСКЛЮЧАЕМ переводы
+  trans = getRealTransactions(trans);
 
   let totalIncome = 0, totalExpense = 0;
   trans.forEach(t => t.amount > 0 ? totalIncome += t.amount : totalExpense += Math.abs(t.amount));
@@ -46,7 +45,7 @@ function renderIncomeExpenseChart() {
   const ctx = document.getElementById('incomeExpenseChart');
   if (incomeExpenseChart) incomeExpenseChart.destroy();
   let trans = filterTransactionsByPeriod(currentUser.data.transactions || []);
-  trans = getRealTransactions(trans);   // ← ИСКЛЮЧАЕМ переводы
+  trans = getRealTransactions(trans);
   const data = getMonthlyData(trans);
   incomeExpenseChart = new Chart(ctx, {
     type: 'line',
@@ -62,7 +61,7 @@ function renderCategoryPieChart() {
   const ctx = document.getElementById('categoryPieChart');
   if (categoryPieChart) categoryPieChart.destroy();
   let trans = filterTransactionsByPeriod(currentUser.data.transactions || []);
-  trans = getRealTransactions(trans);   // ← ИСКЛЮЧАЕМ переводы
+  trans = getRealTransactions(trans);
   const dataByCat = {};
   trans.filter(t => t.amount < 0).forEach(t => dataByCat[t.category] = (dataByCat[t.category] || 0) + Math.abs(t.amount));
   categoryPieChart = new Chart(ctx, {
@@ -76,7 +75,7 @@ function renderTopExpenseChart() {
   const ctx = document.getElementById('topExpenseChart');
   if (topExpenseChart) topExpenseChart.destroy();
   let trans = filterTransactionsByPeriod(currentUser.data.transactions || []);
-  trans = getRealTransactions(trans);   // ← ИСКЛЮЧАЕМ переводы
+  trans = getRealTransactions(trans);
   const dataByCat = {};
   trans.filter(t => t.amount < 0).forEach(t => dataByCat[t.category] = (dataByCat[t.category] || 0) + Math.abs(t.amount));
   const sorted = Object.entries(dataByCat).sort((a,b) => b[1]-a[1]).slice(0,7);
@@ -89,12 +88,17 @@ function renderTopExpenseChart() {
 
 function renderMonthlyTable() {
   let trans = filterTransactionsByPeriod(currentUser.data.transactions || []);
-  trans = getRealTransactions(trans);   // ← ИСКЛЮЧАЕМ переводы
+  trans = getRealTransactions(trans);
   const data = getMonthlyData(trans);
   let html = `<thead><tr class="border-b"><th class="text-left py-3 px-4">Месяц</th><th class="text-right py-3 px-4">Доходы</th><th class="text-right py-3 px-4">Расходы</th><th class="text-right py-3 px-4">Баланс</th></tr></thead><tbody>`;
   data.labels.forEach((month, i) => {
     const inc = data.income[i], exp = data.expense[i], bal = inc - exp;
-    html += `<tr class="border-b last:border-0"><td class="py-3 px-4">${month}</td><td class="py-3 px-4 text-right text-green-500">${inc.toLocaleString('ru-RU')} ₽</td><td class="py-3 px-4 text-right text-red-500">${exp.toLocaleString('ru-RU')} ₽</td><td class="py-3 px-4 text-right ${bal >= 0 ? 'text-green-500' : 'text-red-500'}">${bal.toLocaleString('ru-RU')} ₽</td></tr>`;
+    html += `<tr class="border-b last:border-0">
+      <td class="py-3 px-4" data-label="Месяц">${month}</td>
+      <td class="py-3 px-4 text-right text-green-500" data-label="Доходы">${inc.toLocaleString('ru-RU')} ₽</td>
+      <td class="py-3 px-4 text-right text-red-500" data-label="Расходы">${exp.toLocaleString('ru-RU')} ₽</td>
+      <td class="py-3 px-4 text-right ${bal >= 0 ? 'text-green-500' : 'text-red-500'}" data-label="Баланс">${bal.toLocaleString('ru-RU')} ₽</td>
+    </tr>`;
   });
   html += '</tbody>';
   document.getElementById('monthlyTable').innerHTML = html;
